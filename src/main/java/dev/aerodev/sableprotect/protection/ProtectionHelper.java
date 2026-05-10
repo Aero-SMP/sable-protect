@@ -42,17 +42,26 @@ public final class ProtectionHelper {
     }
 
     /**
+     * Returns true if the player is eligible to use the admin bypass — i.e. they hold
+     * {@code sableprotect.bypass.use} (or meet the configured fallback OP level). Does
+     * <em>not</em> require the per-session opt-in. Use this for read-only admin affordances
+     * (e.g. revealing a ship's location in {@code /sp info}); use {@link #isAdminBypass} for
+     * checks that should defer to the active toggle.
+     */
+    public static boolean isBypassEligible(final ServerPlayer player) {
+        final int required = SableProtectConfig.ADMIN_BYPASS_PERMISSION_LEVEL.get();
+        if (required > 4) return false;
+        return Permissions.has(player, Permissions.Nodes.BYPASS_USE, required);
+    }
+
+    /**
      * Returns true if the player has both the configured permission level AND has opted in
      * via {@code /sp bypass}. The opt-in is per-session and resets on server restart, so
      * admins are subject to normal protection rules until they actively enable bypass.
      * Set the config value above 4 to disable the bypass entirely.
      */
     public static boolean isAdminBypass(final ServerPlayer player) {
-        final int required = SableProtectConfig.ADMIN_BYPASS_PERMISSION_LEVEL.get();
-        if (required > 4) return false;
-        // LuckPerms node sableprotect.bypass.use overrides the level check; falls back
-        // to the vanilla level when LP is absent or hasn't expressed an opinion.
-        if (!Permissions.has(player, Permissions.Nodes.BYPASS_USE, required)) return false;
+        if (!isBypassEligible(player)) return false;
         return BypassHelper.isEnabled(player);
     }
 

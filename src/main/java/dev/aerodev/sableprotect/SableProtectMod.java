@@ -21,6 +21,7 @@ import dev.ryanhcode.sable.sublevel.ServerSubLevel;
 import dev.ryanhcode.sable.sublevel.SubLevel;
 import dev.ryanhcode.sable.sublevel.plot.heat.SubLevelHeatMapManager;
 import net.minecraft.core.BlockPos;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
@@ -86,7 +87,10 @@ public class SableProtectMod {
         });
     }
 
-    @SubscribeEvent
+    /** Register at LOWEST priority so we run after every other mod's command listener.
+     *  Combined with {@link SpCommand}'s pre-register scrub of any existing {@code /sp}
+     *  root, this guarantees we win over collisions like WorldEdit's superpickaxe alias. */
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onRegisterCommands(final RegisterCommandsEvent event) {
         SpCommand.register(event, claimRegistry, freezeManager, pendingFetchManager);
         LOGGER.info("[sable-protect] Commands registered");

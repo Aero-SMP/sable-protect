@@ -6,6 +6,7 @@ import dev.aerodev.sableprotect.claim.ClaimData;
 import dev.aerodev.sableprotect.claim.ClaimRegistry;
 import dev.aerodev.sableprotect.claim.ClaimRole;
 import dev.aerodev.sableprotect.config.SableProtectConfig;
+import dev.aerodev.sableprotect.protection.ProtectionHelper;
 import dev.aerodev.sableprotect.util.CrewPresence;
 import dev.aerodev.sableprotect.util.Lang;
 import dev.aerodev.sableprotect.util.NoMansLand;
@@ -176,8 +177,9 @@ public final class InfoCommand {
         player.displayClientMessage(header, false);
 
         // Location — live position when loaded, last-known cached position when unloaded.
-        // Visible to owners and members. Click-copy yields "X Y Z" for use in /tp etc.
-        if (isMemberOrOwner) {
+        // Visible to owners and members, plus bypass-eligible admins (read-only — does not
+        // require the /sp bypass toggle to be active). Click-copy yields "X Y Z" for /tp.
+        if (isMemberOrOwner || ProtectionHelper.isBypassEligible(player)) {
             final MutableComponent locationLine = formatLocation(subLevel, data);
             if (locationLine != null) player.displayClientMessage(locationLine, false);
         }
