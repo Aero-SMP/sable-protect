@@ -15,6 +15,7 @@ import dev.aerodev.sableprotect.protection.BlockProtectionHandler;
 import dev.aerodev.sableprotect.protection.DisassemblyProtectionHandler;
 import dev.aerodev.sableprotect.protection.InteractionProtectionHandler;
 import dev.aerodev.sableprotect.protection.InventoryProtectionHandler;
+import dev.aerodev.sableprotect.protection.NetherPortalProtectionHandler;
 import dev.ryanhcode.sable.Sable;
 import dev.ryanhcode.sable.platform.SableEventPlatform;
 import dev.ryanhcode.sable.sublevel.ServerSubLevel;
@@ -55,6 +56,7 @@ public class SableProtectMod {
         NeoForge.EVENT_BUS.register(new DisassemblyProtectionHandler());
         NeoForge.EVENT_BUS.register(new InventoryProtectionHandler());
         NeoForge.EVENT_BUS.register(new InteractionProtectionHandler());
+        NeoForge.EVENT_BUS.register(new NetherPortalProtectionHandler());
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {

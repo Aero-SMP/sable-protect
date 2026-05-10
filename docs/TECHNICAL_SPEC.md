@@ -39,7 +39,8 @@ dev.aerodev.sableprotect/
 │   ├── BlockProtectionHandler.java # Block place/break + explosion events
 │   ├── InteractionProtectionHandler.java # RightClickBlock, entity interact events
 │   ├── InventoryProtectionHandler.java   # Container-specific interaction filtering
-│   └── DisassemblyProtectionHandler.java # Physics assembler + merging glue
+│   ├── DisassemblyProtectionHandler.java # Physics assembler + merging glue
+│   └── NetherPortalProtectionHandler.java # Cancels OW↔Nether travel that crosses the NML border (Phase 6)
 ├── command/
 │   ├── SpCommand.java              # Root /sp command registration
 │   ├── ClaimCommand.java           # /sp claim
@@ -716,6 +717,7 @@ These are intentionally minimal. Most behavior is per-claim (stored in `userData
 - `/sp steal <name> [CONFIRM]` — two-step ownership transfer with on-board + crew-absence preflight checks; preserves name + toggles, clears members, sends a red notification to all online prior owner/members *(implemented in `command/StealCommand`)*
 - Tab completion for `/sp steal` filters to claims currently in NML where the player isn't already the owner *(implemented)*
 - Info window: `[NO MAN'S LAND]` red annotation next to the title when applicable, `[Steal]` button for non-owners on in-NML ships *(implemented)*
+- `protection/NetherPortalProtectionHandler.java` — cancels `EntityTravelToDimensionEvent` for the OW↔Nether pair when the entity's overworld-projected position lies inside the NML rectangle, so the Nether can't be used as a shortcut into or out of the lawless zone *(implemented)*
 
 **Implementation notes:**
 - "On board" is determined by `Sable.HELPER.getTrackingOrVehicleSubLevel(player)`, matching how Sable itself attributes a player to a sub-level (riding, standing on, etc.).
@@ -723,6 +725,7 @@ These are intentionally minimal. Most behavior is per-claim (stored in `userData
 - The initiator's own presence is excluded from the absence check (a member running `/sp steal` on themselves isn't blocked by their own proximity).
 - `/sp steal` does not interact with the admin bypass; bypass is irrelevant inside NML because protections are already off.
 - The claim's NBT (`sableprotect` compound on `userDataTag`) is unchanged when a ship enters/leaves NML — the gating is purely runtime, computed against the current pose. A claimed ship that re-enters protected airspace is immediately re-protected.
+- Nether portal blocking projects the source position into overworld coordinates (multiply by 8 when the source is the Nether) and reuses `NoMansLand.contains(x, z)`. This catches both directions symmetrically: a portal lit inside NML, and a nether-side portal whose vanilla 1:8 destination would emerge in NML. End portals and command teleports are intentionally untouched. On cancel, the player gets an action-bar message and `Entity.setPortalCooldown()` is invoked so the next handleNetherPortal tick respects the cooldown rather than re-firing the event immediately.
 
 **Verification:**
 1. With NML enabled, fly a claimed sub-level into the configured rectangle; verify a non-member can break/place blocks and use interactions on it.
@@ -730,6 +733,8 @@ These are intentionally minimal. Most behavior is per-claim (stored in `userData
 3. With the owner online and standing on the ship, attempt `/sp steal` from a non-owner: should fail with the crew-present message naming the owner.
 4. With the owner offline (or kicked, or far away), board the ship as a non-owner and run `/sp steal <name>` then `/sp steal <name> CONFIRM`: ownership should transfer, the previous owner gets a red notification on next login (or immediately if online), and members are cleared.
 5. Move the ship out of NML and verify the new owner's protections re-engage.
+6. With NML enabled, build a nether portal inside the NML rectangle and step in: travel should be canceled and the action-bar message displayed. Step out and the cooldown should clear within a few seconds.
+7. Build a nether portal in the Nether at coordinates whose 1:8 projection lands inside the NML rectangle; step in and verify the return to the overworld is canceled with the same message. A portal whose projected destination is outside NML should still work normally.
 
 ---
 
@@ -807,7 +812,7 @@ This means an existing OP-only deployment without LuckPerms node configuration k
 - `ClaimData.lastKnownPosition` (`Vec3?`) with NBT serialization under `sableprotect:lastPos { x, y, z }`. *(implemented)*
 - `ClaimObserver` snapshots the current pose into the cache on every `onSubLevelAdded` and on `onSubLevelRemoved` with `UNLOADED` reason. Split-fragment inheritance overwrites the inherited cache with the fragment's own pose. *(implemented)*
 - `ClaimCommand` and `ClaimUuidCommand` capture position at claim creation. *(implemented)*
-- `InfoCommand` renders a `Location: X, Y, Z` line below the title for owners and members. Loaded → live position in cyan; unloaded → cached position in italic grey. Click-copies a space-separated `X Y Z` triple suitable for `/tp`. *(implemented)*
+- `InfoCommand` renders a `Location: X, Y, Z` line below the title for owners, members, and bypass-eligible admins (`ProtectionHelper.isBypassEligible` — `sableprotect.bypass.use` or fallback OP level; toggle state is irrelevant). Loaded → live position in cyan; unloaded → cached position in italic grey. Click-copies a space-separated `X Y Z` triple suitable for `/tp`. *(implemented)*
 - `[Locate]` button removed from the info window; `/sp locate` command and supporting lang strings removed. *(implemented; `LocateCommand.java` deleted)*
 
 **Implementation notes:**

@@ -64,5 +64,6 @@
   "sableprotect.steal.hover_ready": "Click to steal — you are on board and the crew is absent.",
   "sableprotect.steal.hover_not_on_board": "Disabled: you must be on board the sub-level to steal it.",
   "sableprotect.steal.hover_crew_present": "Disabled: %s is within %s blocks of the sub-level.",
-  "sableprotect.steal.hover_unloaded": "Disabled: this sub-level is not currently loaded; you can't be on board."
+  "sableprotect.steal.hover_unloaded": "Disabled: this sub-level is not currently loaded; you can't be on board.",
+  "sableprotect.nml.portal_blocked": "Nether portal travel is blocked here — this would cross the No Man's Land border."
 }

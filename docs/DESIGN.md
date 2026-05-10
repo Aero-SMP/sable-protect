@@ -81,7 +81,7 @@ Members  [Add Member]:
 
 \* "Fetch from Out of Bounds" is only shown when the sub-level is currently outside the world border.
 
-\*\* "Location" is shown to owners and members. When the sub-level is loaded the coordinates are live; when unloaded the line shows the last-known position (italic + grey). Clicking the coordinate text copies a space-separated `X Y Z` triple to the clipboard, suitable for pasting into `/tp` or similar commands.
+\*\* "Location" is shown to owners, members, and admins eligible for `/sp bypass` (i.e. holders of `sableprotect.bypass.use` or, in the absence of LuckPerms, players at the configured OP level — `4` by default). For admins the location is visible regardless of whether the bypass toggle is currently active; it's a read-only affordance for moderation. When the sub-level is loaded the coordinates are live; when unloaded the line shows the last-known position (italic + grey). Clicking the coordinate text copies a space-separated `X Y Z` triple to the clipboard, suitable for pasting into `/tp` or similar commands.
 
 Clickable buttons pre-type or auto-submit the corresponding `/sp` command. Non-owners see the protection toggles as static text rather than buttons. Members see Fetch but not the editing or membership buttons.
 
@@ -220,6 +220,14 @@ While a sub-level's center is inside the rectangle:
 - The mixin-based packet protections (Physics Assembler trigger, merging glue, spring, steering wheel, throttle lever, rope break) are also suspended in NML, matching the event-based protections.
 
 The claim itself isn't removed — it survives a trip through No Man's Land unchanged unless someone uses `/sp steal` while the crew is absent. A ship that re-enters protected airspace immediately resumes its claim restrictions.
+
+### Nether portal travel
+
+Nether travel that would cross the NML border is blocked in both directions. Without this, the Nether becomes a free shortcut into and out of NML — only the overworld rectangle is designated as lawless, so a portal pair lets players skip past it.
+
+- **Overworld → Nether** is blocked when the entity's overworld position is inside the NML rectangle.
+- **Nether → Overworld** is blocked when the entity's nether position, scaled by the standard 1:8 nether/overworld ratio, lands inside the NML rectangle. This covers portals built in the projected nether region whose overworld destination would emerge inside NML.
+- Players who attempt blocked portal travel see an action-bar message explaining the block, and a portal cooldown is applied so they aren't immediately re-tested next tick. Other dimension transits (End portals, command-driven teleports) are unaffected.
 
 ---
 
