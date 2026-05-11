@@ -47,7 +47,7 @@ dev.aerodev.sableprotect/
 │   ├── ClaimUuidCommand.java       # /sp claimuuid (OP-only, claim by UUID)
 │   ├── InfoCommand.java            # /sp info, builds chat component
 │   ├── EditCommand.java            # /sp edit (toggles, rename, changeowner, members)
-│   ├── UnclaimCommand.java         # /sp unclaim + confirmation
+│   ├── UnclaimCommand.java         # /sp unclaim + confirmation (owner, or bypass-eligible admin override)
 │   ├── FetchCommand.java           # /sp fetch + physics freeze
 │   ├── GroundCommand.java          # /sp ground (Phase 12) — vertical drop + freeze
 │   ├── MyClaimsCommand.java        # /sp myclaims
@@ -889,7 +889,7 @@ This means an existing OP-only deployment without LuckPerms node configuration k
   - `ClaimUuidCommand` → `CREATE context=claimuuid`
   - `EditCommand.executeChangeOwner` → `TRANSFER context=changeowner`
   - `StealCommand.executeConfirmed` → `TRANSFER context=steal`
-  - `UnclaimCommand.executeConfirmed` → `DELETE context=unclaim`
+  - `UnclaimCommand.executeConfirmed` → `DELETE context=unclaim` (owner) or `DELETE context=unclaim-admin` (bypass-eligible admin override)
   - `ClaimObserver.onSubLevelRemoved(REMOVED)` → `DELETE context=destroyed`, `actor=<system>`
   - `ClaimObserver.applyInheritance` → `CREATE context=splitinheritance`, `actor=<system>` *(implemented)*
 

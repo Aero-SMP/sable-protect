@@ -6,6 +6,7 @@ import dev.aerodev.sableprotect.audit.AuditLog;
 import dev.aerodev.sableprotect.claim.ClaimData;
 import dev.aerodev.sableprotect.claim.ClaimRegistry;
 import dev.aerodev.sableprotect.claim.ClaimRole;
+import dev.aerodev.sableprotect.protection.ProtectionHelper;
 import dev.aerodev.sableprotect.util.Lang;
 import dev.ryanhcode.sable.api.sublevel.SubLevelContainer;
 import dev.ryanhcode.sable.sublevel.ServerSubLevel;
@@ -27,9 +28,17 @@ public final class UnclaimCommand {
                 .then(Commands.argument("name", StringArgumentType.string())
                         .suggests((ctx, builder) -> {
                             final ServerPlayer player = ctx.getSource().getPlayerOrException();
-                            for (final UUID id : registry.getOwnedBy(player.getUUID())) {
-                                final String name = registry.getNameByUuid(id);
-                                if (name != null) builder.suggest(name);
+                            // Bypass-eligible admins can unclaim any ship (debris / moderation
+                            // cleanup), so they get full tab-complete; non-admins see only their own.
+                            if (ProtectionHelper.isBypassEligible(player)) {
+                                for (final String name : registry.getAllNames()) {
+                                    builder.suggest(name);
+                                }
+                            } else {
+                                for (final UUID id : registry.getOwnedBy(player.getUUID())) {
+                                    final String name = registry.getNameByUuid(id);
+                                    if (name != null) builder.suggest(name);
+                                }
                             }
                             return builder.buildFuture();
                         })
@@ -74,7 +83,9 @@ public final class UnclaimCommand {
             return 0;
         }
 
-        if (data.getRole(player.getUUID()) != ClaimRole.OWNER) {
+        final boolean isOwner = data.getRole(player.getUUID()) == ClaimRole.OWNER;
+        final boolean isAdmin = !isOwner && ProtectionHelper.isBypassEligible(player);
+        if (!isOwner && !isAdmin) {
             player.displayClientMessage(
                     Lang.tr("sableprotect.not_owner"), false);
             return 0;
@@ -87,7 +98,8 @@ public final class UnclaimCommand {
         }
         registry.removeClaim(subLevelId);
 
-        AuditLog.logDelete(player.getServer(), name, subLevelId, player, "unclaim");
+        AuditLog.logDelete(player.getServer(), name, subLevelId, player,
+                isAdmin ? "unclaim-admin" : "unclaim");
 
         player.displayClientMessage(
                 Lang.tr("sableprotect.unclaim.success", name), false);

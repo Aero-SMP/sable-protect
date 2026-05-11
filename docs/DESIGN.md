@@ -121,6 +121,8 @@ Removes a member. Owner only.
 ### `/sp unclaim <name>`
 Prompts for confirmation. The owner must then run `/sp unclaim <name> CONFIRM` to complete the action. Removes all claim data from the sub-level.
 
+Bypass-eligible admins (LP node `sableprotect.bypass.use` or the configured fallback OP level — same eligibility check as `/sp bypass`, *not* requiring the per-session toggle to be on) may unclaim any sub-level, not just their own. Tab completion expands to the full claim list for admins so debris and abandoned ships are easy to target. Admin-initiated unclaims are recorded in the audit log with `context=unclaim-admin` to distinguish them from owner-initiated unclaims.
+
 ### `/sp steal <name>`
 Steals ownership of a claimed sub-level inside No Man's Land. Two-step confirmation: `/sp steal <name>` previews the action, `/sp steal <name> CONFIRM` executes. All of the following must be true:
 - The sub-level must currently be inside the No Man's Land rectangle.
@@ -178,7 +180,7 @@ A plain-text append-only log of claim lifecycle events is written to `<server-ro
 **Logged events:**
 - `CREATE` — `/sp claim`, `/sp claimuuid`, split-inheritance fragment.
 - `TRANSFER` — `/sp edit changeowner`, `/sp steal`.
-- `DELETE` — `/sp unclaim`, sub-level genuinely destroyed (Physics Assembler disassembly, merge consumption).
+- `DELETE` — `/sp unclaim` (owner-initiated, `context=unclaim`; bypass-eligible admin-initiated, `context=unclaim-admin`), sub-level genuinely destroyed (Physics Assembler disassembly, merge consumption).
 
 **Not logged:** rename, member add/remove, toggle protection, info views, failed commands.
 
