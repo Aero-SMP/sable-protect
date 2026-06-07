@@ -715,7 +715,7 @@ These are intentionally minimal. Most behavior is per-claim (stored in `userData
 - `ProtectionHelper.getClaimContext` and `PacketProtection.resolveClaim` return null for in-NML claims, causing every event-based and mixin-based protection to no-op *(implemented)*
 - `InteractionProtectionHandler` entity-interact / attack-entity paths early-out on in-NML sub-levels (they read `ClaimData` directly, bypassing `getClaimContext`) *(implemented)*
 - `/sp steal <name> [CONFIRM]` — two-step ownership transfer with on-board + crew-absence preflight checks; preserves name + toggles, clears members, sends a red notification to all online prior owner/members *(implemented in `command/StealCommand`)*
-- Tab completion for `/sp steal` filters to claims currently in NML where the player isn't already the owner *(implemented)*
+- Tab completion for `/sp steal` is intentionally disabled — enumerating eligible ships would leak the names of every claim currently in NML to anyone with command access. Players must type the target's name themselves. *(implemented)*
 - Info window: `[NO MAN'S LAND]` red annotation next to the title when applicable, `[Steal]` button for non-owners on in-NML ships *(implemented)*
 - `protection/NetherPortalProtectionHandler.java` — cancels `EntityTravelToDimensionEvent` for the OW↔Nether pair when the entity's overworld-projected position lies inside the NML rectangle, so the Nether can't be used as a shortcut into or out of the lawless zone *(implemented)*
 

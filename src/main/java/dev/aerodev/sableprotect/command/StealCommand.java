@@ -28,23 +28,11 @@ public final class StealCommand {
     private StealCommand() {}
 
     public static LiteralArgumentBuilder<CommandSourceStack> register(final ClaimRegistry registry) {
+        // No suggestion provider on <name>: tab-completing would enumerate every claim
+        // currently in NML, leaking ship names (and indirectly who's there) to anyone
+        // who can run /sp steal. Players must type the target's name themselves.
         return Commands.literal("steal")
                 .then(Commands.argument("name", StringArgumentType.string())
-                        .suggests((ctx, builder) -> {
-                            final ServerPlayer player = ctx.getSource().getPlayerOrException();
-                            for (final String name : registry.getAllNames()) {
-                                final UUID id = registry.getSubLevelByName(name);
-                                if (id == null) continue;
-                                final ServerSubLevel sub = UnclaimCommand.findSubLevel(player, id);
-                                if (sub == null) continue;
-                                if (!NoMansLand.contains(sub)) continue;
-                                final ClaimData data = ClaimData.read(sub);
-                                if (data == null) continue;
-                                if (data.getOwner().equals(player.getUUID())) continue;
-                                builder.suggest(registry.getNameByUuid(id));
-                            }
-                            return builder.buildFuture();
-                        })
                         .executes(ctx -> {
                             final ServerPlayer player = ctx.getSource().getPlayerOrException();
                             final String name = StringArgumentType.getString(ctx, "name");
