@@ -242,24 +242,23 @@ Toggles debug mode for the issuing player. When enabled, sub-level lookups and p
 
 ### Admin bypass
 
-Eligible admins can bypass all four protection categories — break/place blocks, interact with anything, open inventories, disassemble, merge — on any claim regardless of ownership. The bypass is **opt-in per session**: admins are subject to normal protection rules until they actively enable it via `/sp bypass`, and the toggle resets on server restart so an admin always starts with protection applied. Eligibility is checked via the LuckPerms node `sableprotect.bypass.use` (when LuckPerms is installed) or, as a fallback, the vanilla permission level configured by `adminBypassPermissionLevel` (default 4 — full ops only). Setting the config to 5 disables the bypass entirely.
+Eligible admins can bypass all four protection categories — break/place blocks, interact with anything, open inventories, disassemble, merge — on any claim regardless of ownership. The bypass is **opt-in per session**: admins are subject to normal protection rules until they actively enable it via `/sp bypass`, and the toggle resets on server restart so an admin always starts with protection applied. Eligibility is checked via the LuckPerms node `sableprotect.bypass.use` (when LuckPerms is installed) or, as a fallback, the vanilla permission level configured by `adminBypassPermissionLevel` (default 4 — full ops only). Setting the config to 5 disables the vanilla fallback so only LuckPerms grants of `sableprotect.bypass.use` confer eligibility.
 
 ### Permissions
 
-OP-level features can be gated through LuckPerms when it's installed; otherwise they fall back to vanilla permission levels. LuckPerms decisions take precedence — granting a node enables the feature for non-OPs, denying it (e.g., `sableprotect.command.bypass = false`) revokes it even from OPs. When LuckPerms hasn't expressed an opinion (`UNDEFINED`), the vanilla level is consulted so existing op-only setups keep working without configuration.
+OP-level features can be gated through LuckPerms when it's installed; otherwise they fall back to vanilla permission levels. LuckPerms decisions take precedence — granting a node enables the feature for non-OPs, denying it (e.g., `sableprotect.bypass.use = false`) revokes it even from OPs. When LuckPerms hasn't expressed an opinion (`UNDEFINED`), the vanilla level is consulted so existing op-only setups keep working without configuration.
 
 | Node                            | Vanilla fallback level | What it gates                                                  |
 | ------------------------------- | ---------------------- | -------------------------------------------------------------- |
 | `sableprotect.command.debug`    | 2                      | `/sp debug` toggle                                             |
-| `sableprotect.command.bypass`   | 2                      | `/sp bypass` command (still requires `sableprotect.bypass.use` to take effect) |
 | `sableprotect.command.reload`   | 2                      | `/sp reload`                                                   |
 | `sableprotect.command.claimuuid`| 2                      | `/sp claimuuid` (claim by UUID, override existing)              |
 | `sableprotect.edit.override`    | 2                      | Edit any claim regardless of ownership (`/sp edit ...` on a claim you don't own) |
-| `sableprotect.bypass.use`       | `adminBypassPermissionLevel` (default 4) | Eligibility for the actual claim-protection bypass effect |
+| `sableprotect.bypass.use`       | `adminBypassPermissionLevel` (default 4) | `/sp bypass` access and the resulting claim-protection bypass effect |
 
 ### `/sp bypass`
 
-OP-only (level 2 to run the command, but the actual bypass effect requires meeting `adminBypassPermissionLevel`). Toggles admin claim-protection bypass for the issuing player. State is per-player and does not persist across server restarts.
+Toggles admin claim-protection bypass for the issuing player. Gated by `sableprotect.bypass.use` (with `adminBypassPermissionLevel` as the vanilla fallback) — players who don't qualify don't see the command in tab-complete. State is per-player and does not persist across server restarts.
 
 ### `/sp reload`
 OP-only. Force-reloads the mod's configuration from disk and resets in-memory caches. Useful after editing `config/sableprotect-common.toml` to apply the new values without restarting the server. NeoForge's file watcher normally picks up edits automatically; this command is a manual fallback that also re-reads the bundled language strings.

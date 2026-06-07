@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
  * <h2>Permission nodes</h2>
  * Every node is namespaced under {@code sableprotect.}. See {@link Nodes} for the full
  * list; granting any of these in LuckPerms grants the corresponding feature. Denying
- * (e.g. {@code sableprotect.command.bypass = false}) revokes it even from OPs.
+ * (e.g. {@code sableprotect.bypass.use = false}) revokes it even from OPs.
  */
 public final class Permissions {
 
@@ -42,7 +42,7 @@ public final class Permissions {
      * Check whether {@code player} should be granted access to a feature.
      *
      * @param player        the player attempting the action
-     * @param node          the LuckPerms permission node (e.g. {@code sableprotect.command.bypass})
+     * @param node          the LuckPerms permission node (e.g. {@code sableprotect.bypass.use})
      * @param fallbackLevel vanilla permission level to require when LP is absent or
      *                      hasn't expressed an opinion (typically {@code 2} for moderator
      *                      commands, {@code 4} for ops-only)
@@ -72,12 +72,11 @@ public final class Permissions {
     /** Permission node constants for the OP-level features. */
     public static final class Nodes {
         public static final String COMMAND_DEBUG     = "sableprotect.command.debug";
-        public static final String COMMAND_BYPASS    = "sableprotect.command.bypass";
         public static final String COMMAND_RELOAD    = "sableprotect.command.reload";
         public static final String COMMAND_CLAIMUUID = "sableprotect.command.claimuuid";
         /** Lets a non-owner edit any claim ({@code /sp edit ...}). */
         public static final String EDIT_OVERRIDE     = "sableprotect.edit.override";
-        /** Eligibility to enable the protection bypass via {@code /sp bypass}. */
+        /** Gates both running {@code /sp bypass} and being eligible for the bypass effect. */
         public static final String BYPASS_USE        = "sableprotect.bypass.use";
 
         private Nodes() {}

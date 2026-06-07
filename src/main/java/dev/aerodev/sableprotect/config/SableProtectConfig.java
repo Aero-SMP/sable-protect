@@ -45,9 +45,11 @@ public final class SableProtectConfig {
                 .defineInRange("absenceRadius", 100, 1, 10_000);
 
         ADMIN_BYPASS_PERMISSION_LEVEL = builder
-                .comment("Vanilla permission level required to bypass all claim protection.",
-                         "Vanilla permission levels: 0 = none, 2 = gamemasters, 3 = admins, 4 = full ops.",
-                         "Set to 5 (above max) to disable the admin bypass entirely.")
+                .comment("Vanilla permission level required to use /sp bypass.",
+                         "Vanilla levels: 0 = none, 2 = gamemasters, 3 = admins, 4 = full ops.",
+                         "Set to 5 to disable the vanilla fallback — only players granted the",
+                         "LuckPerms node sableprotect.bypass.use will be able to bypass.",
+                         "LuckPerms (when installed) is always consulted first regardless of this level.")
                 .defineInRange("adminBypassPermissionLevel", 4, 0, 5);
 
         builder.push("contraptionBreakers");

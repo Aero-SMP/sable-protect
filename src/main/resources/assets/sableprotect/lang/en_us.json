@@ -49,7 +49,6 @@
   "sableprotect.ground.hover_unavailable": "Disabled: this sub-level has no recorded position; load it once first.",
   "sableprotect.bypass.enabled": "Admin bypass ENABLED — you now bypass all claim protection.",
   "sableprotect.bypass.disabled": "Admin bypass DISABLED — claim protection now applies to you.",
-  "sableprotect.bypass.not_eligible": "You do not meet the configured permission level (%s) for admin bypass.",
   "sableprotect.info.nml_hover": "This sub-level is currently inside No Man's Land — claim protections are suspended, and the sub-level can be stolen (ownership transferred) by anyone on board if the crew is absent.",
   "sableprotect.info.unloaded_hover": "This sub-level is not currently in a loaded chunk.",
   "sableprotect.reload.success": "Sable Protect config reloaded.",
