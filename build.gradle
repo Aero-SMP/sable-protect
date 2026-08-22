@@ -139,6 +139,10 @@ dependencies {
     // BlockBreakingMovementBehaviour with real types instead of @Coerce Object,
     // which (combined with stringly-typed @Mixin targets) silently failed to apply.
     compileOnly("com.simibubi.create:create-${project.minecraft_version}:${project.create_version}") { transitive = false }
+
+    testImplementation(platform('org.junit:junit-bom:5.10.2'))
+    testImplementation('org.junit.jupiter:junit-jupiter')
+    testRuntimeOnly('org.junit.platform:junit-platform-launcher')
 }
 
 def generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {
@@ -177,6 +181,10 @@ publishing {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+}
+
+tasks.named('test', Test).configure {
+    useJUnitPlatform()
 }
 
 idea {

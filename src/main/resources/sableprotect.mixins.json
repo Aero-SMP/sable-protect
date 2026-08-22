@@ -17,6 +17,7 @@
     "compat.offroad.MultiMiningServerManagerMixin",
     "compat.vanilla.BucketItemMixin",
     "compat.vanilla.DispenserBlockMixin",
+    "compat.vanilla.MinecraftServerWatchdogMixin",
     "compat.vanilla.SmallFireballMixin"
   ],
   "injectors": {

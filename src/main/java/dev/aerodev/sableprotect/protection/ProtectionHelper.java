@@ -17,9 +17,11 @@ import org.jetbrains.annotations.Nullable;
 
 public final class ProtectionHelper {
 
-    private ProtectionHelper() {}
+    private ProtectionHelper() {
+    }
 
-    public record ClaimContext(ServerSubLevel subLevel, ClaimData claimData) {}
+    public record ClaimContext(ServerSubLevel subLevel, ClaimData claimData) {
+    }
 
     /**
      * Resolves claim context for a block position. Returns null if the block is not
@@ -34,7 +36,8 @@ public final class ProtectionHelper {
         if (data == null) {
             return null;
         }
-        // No Man's Land: claim still exists for /sp info / /sp myclaims, but protections do not apply.
+        // No Man's Land: claim still exists for /sp info / /sp myclaims, but
+        // protections do not apply.
         if (NoMansLand.contains(serverSubLevel)) {
             return null;
         }
@@ -42,33 +45,39 @@ public final class ProtectionHelper {
     }
 
     /**
-     * Returns true if the player is eligible to use the admin bypass — i.e. they hold
-     * {@code sableprotect.bypass.use} (or meet the configured fallback OP level). Does
-     * <em>not</em> require the per-session opt-in. Use this for read-only admin affordances
-     * (e.g. revealing a ship's location in {@code /sp info}); use {@link #isAdminBypass} for
+     * Returns true if the player is eligible to use the admin bypass — i.e. they
+     * hold
+     * {@code sableprotect.bypass.use} (or meet the configured fallback OP level).
+     * Does
+     * <em>not</em> require the per-session opt-in. Use this for read-only admin
+     * affordances
+     * (e.g. revealing a ship's location in {@code /sp info}); use
+     * {@link #isAdminBypass} for
      * checks that should defer to the active toggle.
      */
     public static boolean isBypassEligible(final ServerPlayer player) {
         final int required = SableProtectConfig.ADMIN_BYPASS_PERMISSION_LEVEL.get();
-        if (required > 4) return false;
         return Permissions.has(player, Permissions.Nodes.BYPASS_USE, required);
     }
 
     /**
-     * Returns true if the player has both the configured permission level AND has opted in
-     * via {@code /sp bypass}. The opt-in is per-session and resets on server restart, so
-     * admins are subject to normal protection rules until they actively enable bypass.
+     * Returns true if the player has both the configured permission level AND has
+     * opted in
+     * via {@code /sp bypass}. The opt-in is per-session and resets on server
+     * restart, so
+     * admins are subject to normal protection rules until they actively enable
+     * bypass.
      * Set the config value above 4 to disable the bypass entirely.
      */
     public static boolean isAdminBypass(final ServerPlayer player) {
-        if (!isBypassEligible(player)) return false;
+        if (!isBypassEligible(player))
+            return false;
         return BypassHelper.isEnabled(player);
     }
 
     public static void sendDeniedMessage(final ServerPlayer player) {
         player.displayClientMessage(
                 Lang.tr("sableprotect.protection.denied"),
-                true
-        );
+                true);
     }
 }

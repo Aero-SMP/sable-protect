@@ -8,6 +8,12 @@ Players claim a sub-level by name; the mod prevents anyone but the owner and mem
 
 Drop the jar into your server's `mods/` folder. Required: NeoForge 1.21.1, [Sable](https://github.com/RyanHCode/Sable), [Simulated-Project](https://github.com/Simulated-Team/Simulated-Project), [Veil](https://github.com/FoundryMC/Veil). Optional: [LuckPerms](https://luckperms.net/).
 
+Sable Protect also corrects the dedicated-server watchdog's time reference so
+that sustained low TPS is not mistaken for one hung tick. The watchdog remains
+enabled and still terminates a genuinely stalled tick after the configured
+`max-tick-time`. See [`docs/WATCHDOG_HEARTBEAT.md`](docs/WATCHDOG_HEARTBEAT.md)
+for the failure model, invariants, and operational guidance.
+
 ## Commands
 
 All commands are prefixed with `/sp`.
@@ -64,6 +70,7 @@ OP-level by default. With LuckPerms installed, each maps to a permission node �
 
 - `docs/DESIGN.md` — feature requirements, UX, permission nodes, audit log, persistence model.
 - `docs/TECHNICAL_SPEC.md` — implementation phases, data model, package structure.
+- `docs/WATCHDOG_HEARTBEAT.md` — low-TPS watchdog correction and validation.
 
 ## License
 
