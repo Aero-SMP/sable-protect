@@ -1,6 +1,11 @@
 package dev.aerodev.sableprotect.mixin.compat.create;
 
 import com.simibubi.create.foundation.block.ItemUseOverrides;
+import dev.aerodev.sableprotect.SableProtectMod;
+import dev.aerodev.sableprotect.claim.ClaimData;
+import dev.aerodev.sableprotect.claim.ClaimRole;
+import dev.aerodev.sableprotect.protection.ProtectionHelper;
+import net.minecraft.core.BlockPos;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,6 +23,10 @@ public class ItemUseOverridesMixin {
     private static void sableProtect$cancelItemUseOverrides(
             final PlayerInteractEvent.RightClickBlock event,
             final CallbackInfo ci) {
+
+        final ProtectionHelper.ClaimContext ctx = ProtectionHelper.getClaimContext(event.getLevel(), event.getPos());
+        if (ctx == null) return;
+
         ci.cancel();
     }
 }
