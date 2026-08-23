@@ -18,7 +18,8 @@
     "compat.vanilla.BucketItemMixin",
     "compat.vanilla.DispenserBlockMixin",
     "compat.vanilla.MinecraftServerWatchdogMixin",
-    "compat.vanilla.SmallFireballMixin"
+    "compat.vanilla.SmallFireballMixin",
+    "compat.create.ItemUseOverridesMixin"
   ],
   "injectors": {
     "defaultRequire": 1
