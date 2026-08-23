@@ -40,7 +40,7 @@ import org.slf4j.Logger;
 @Mod(SableProtectMod.MODID)
 public class SableProtectMod {
 
-    public static final String MODID = "sableprotect";
+    public static final String MODID = "sableprotec";
     public static final Logger LOGGER = LogUtils.getLogger();
 
     private final ClaimRegistry claimRegistry = new ClaimRegistry();
