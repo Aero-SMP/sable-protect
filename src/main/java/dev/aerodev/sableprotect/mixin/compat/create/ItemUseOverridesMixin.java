@@ -6,6 +6,8 @@ import dev.aerodev.sableprotect.claim.ClaimData;
 import dev.aerodev.sableprotect.claim.ClaimRole;
 import dev.aerodev.sableprotect.protection.ProtectionHelper;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionResult;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -23,10 +25,16 @@ public class ItemUseOverridesMixin {
     private static void sableProtect$cancelItemUseOverrides(
             final PlayerInteractEvent.RightClickBlock event,
             final CallbackInfo ci) {
+        if (!(event.getEntity() instanceof ServerPlayer)) {return;}
 
         final ProtectionHelper.ClaimContext ctx = ProtectionHelper.getClaimContext(event.getLevel(), event.getPos());
         if (ctx == null) return;
 
-        ci.cancel();
+        if (ProtectionHelper.isAdminBypass((ServerPlayer) event.getEntity())) return;
+
+        if (ctx.claimData().isInteractionsProtected() && ctx.claimData().getRole(event.getEntity().getUUID()) == ClaimRole.DEFAULT) {
+            ci.cancel();
+            ProtectionHelper.sendDeniedMessage((ServerPlayer) event.getEntity());
+        }
     }
 }
