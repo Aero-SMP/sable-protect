@@ -22,7 +22,8 @@
     "compat.create.ItemUseOverridesMixin",
     "compat.create.KineticScrollValueBehaviourMixin",
     "compat.create.ValveHandleBlockMixin",
-    "compat.create.ValveHandleBlockEntityMixin"
+    "compat.create.ValveHandleBlockEntityMixin",
+    "compat.create.LinkHandlerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
