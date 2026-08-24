@@ -1,24 +1,23 @@
 package dev.aerodev.sableprotect.mixin.compat.create;
 
-import com.simibubi.create.foundation.blockEntity.behaviour.scrollValue.ScrollValueBehaviour;
-import dev.aerodev.sableprotect.claim.ClaimRole;
-import dev.aerodev.sableprotect.protection.ProtectionHelper;
-import net.minecraft.server.level.ServerPlayer;
+import com.simibubi.create.content.kinetics.motor.KineticScrollValueBehaviour;
+import com.simibubi.create.foundation.blockEntity.behaviour.ValueSettingsBehaviour.ValueSettings;
+import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(value = ScrollValueBehaviour.class, remap = false)
-public class ScrollValueBehaviourMixin {
+@Mixin(value = KineticScrollValueBehaviour.class, remap = false)
+public class KineticScrollValueBehaviourMixin {
     @Inject(
-            method = "setValue",
+            method = "setValueSettings",
             at = @At("HEAD"),
             cancellable = true,
             remap = false
     )
 
-    private static void sableProtect$cancelScrollValueBehaviour(final int value, final CallbackInfo ci) {
+    private static void sableProtect$cancelKineticScrollValueBehaviour(final Player player, ValueSettings valueSetting, boolean ctrlHeld, final CallbackInfo ci) {
         ci.cancel();
         //if (!(event.getEntity() instanceof ServerPlayer)) {return;}
 

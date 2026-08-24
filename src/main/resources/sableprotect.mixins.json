@@ -20,7 +20,7 @@
     "compat.vanilla.MinecraftServerWatchdogMixin",
     "compat.vanilla.SmallFireballMixin",
     "compat.create.ItemUseOverridesMixin",
-    "compat.create.ScrollValueBehaviourMixin"
+    "compat.create.KineticScrollValueBehaviourMixin"
   ],
   "injectors": {
     "defaultRequire": 1
