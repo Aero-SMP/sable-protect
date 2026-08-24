@@ -19,7 +19,8 @@
     "compat.vanilla.DispenserBlockMixin",
     "compat.vanilla.MinecraftServerWatchdogMixin",
     "compat.vanilla.SmallFireballMixin",
-    "compat.create.ItemUseOverridesMixin"
+    "compat.create.ItemUseOverridesMixin",
+    "compat.create.KineticScrollValueBehaviourMixin"
   ],
   "injectors": {
     "defaultRequire": 1
