@@ -23,7 +23,7 @@ public class KineticScrollValueBehaviourMixin {
             remap = false
     )
 
-    private void sableProtect$cancelKineticScrollValueBehaviour(Player player, ValueSettings valueSetting, boolean ctrlHeld, CallbackInfo ci) {
+    private void sableProtect$cancelSpeedSlider(Player player, ValueSettings valueSetting, boolean ctrlHeld, CallbackInfo ci) {
         if (ci == null) {return;}
 
         if (!(player instanceof ServerPlayer)) {return;}

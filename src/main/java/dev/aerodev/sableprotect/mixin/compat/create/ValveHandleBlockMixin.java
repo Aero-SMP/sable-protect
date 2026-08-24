@@ -24,7 +24,7 @@ public class ValveHandleBlockMixin {
             cancellable = true,
             remap = false
     )
-    private void sableProtect$clicked(Level level, BlockPos pos, BlockState blockState, Player player, InteractionHand hand, CallbackInfoReturnable<Boolean> cir) {
+    private void sableProtect$cancelsValveMovement(Level level, BlockPos pos, BlockState blockState, Player player, InteractionHand hand, CallbackInfoReturnable<Boolean> cir) {
         if (!(player instanceof ServerPlayer)) {return;}
 
         final ProtectionHelper.ClaimContext ctx = ProtectionHelper.getClaimContext(level, pos);

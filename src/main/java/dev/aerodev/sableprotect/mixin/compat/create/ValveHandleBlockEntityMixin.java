@@ -23,7 +23,7 @@ public class ValveHandleBlockEntityMixin {
             cancellable = true,
             remap = false
     )
-    private void sableProtect$cancelsetValueSettings(Player player, ValueSettings valueSetting, boolean ctrlHeld, CallbackInfo ci) {
+    private void sableProtect$cancelValveSlider(Player player, ValueSettings valueSetting, boolean ctrlHeld, CallbackInfo ci) {
         if (ci == null) {return;}
 
         if (!(player instanceof ServerPlayer)) {return;}
