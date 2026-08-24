@@ -17,7 +17,7 @@ public class KineticScrollValueBehaviourMixin {
             remap = false
     )
 
-    private static void sableProtect$cancelKineticScrollValueBehaviour(Player player, ValueSettings valueSetting, boolean ctrlHeld, CallbackInfo ci) {
+    private void sableProtect$cancelKineticScrollValueBehaviour(Player player, ValueSettings valueSetting, boolean ctrlHeld, CallbackInfo ci) {
         if (ci == null) {return;}
         ci.cancel();
         //if (!(event.getEntity() instanceof ServerPlayer)) {return;}
