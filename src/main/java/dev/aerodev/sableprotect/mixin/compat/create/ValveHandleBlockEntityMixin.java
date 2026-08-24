@@ -1,5 +1,6 @@
 package dev.aerodev.sableprotect.mixin.compat.create;
 
+import com.simibubi.create.content.kinetics.crank.ValveHandleBlockEntity;
 import com.simibubi.create.content.kinetics.motor.KineticScrollValueBehaviour;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueSettingsBehaviour.ValueSettings;
 import dev.aerodev.sableprotect.claim.ClaimRole;
@@ -14,21 +15,20 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 
-@Mixin(value = KineticScrollValueBehaviour.class, remap = false)
-public class KineticScrollValueBehaviourMixin {
+@Mixin(value = ValveHandleBlockEntity.ValveHandleScrollValueBehaviour.class, remap = false)
+public class ValveHandleBlockEntityMixin {
     @Inject(
             method = "setValueSettings",
             at = @At("HEAD"),
             cancellable = true,
             remap = false
     )
-
-    private void sableProtect$cancelSpeedSlider(Player player, ValueSettings valueSetting, boolean ctrlHeld, CallbackInfo ci) {
+    private void sableProtect$cancelValveSlider(Player player, ValueSettings valueSetting, boolean ctrlHeld, CallbackInfo ci) {
         if (ci == null) {return;}
 
         if (!(player instanceof ServerPlayer)) {return;}
 
-        final KineticScrollValueBehaviour behaviour = (KineticScrollValueBehaviour) (Object) this;
+        final ValveHandleBlockEntity.ValveHandleScrollValueBehaviour behaviour = (ValveHandleBlockEntity.ValveHandleScrollValueBehaviour) (Object) this;
 
         final Level level = behaviour.getWorld();
         final BlockPos pos = behaviour.getPos();
