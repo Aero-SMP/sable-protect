@@ -23,7 +23,7 @@ import java.util.UUID;
 public class LinkedTypewriteBlockEntityMixin {
     @Inject(
             method = "checkAndStartUsing",
-            at = @At("RETURN"),
+            at = @At("HEAD"),
             cancellable = true,
             remap = false
     )
@@ -31,11 +31,21 @@ public class LinkedTypewriteBlockEntityMixin {
 
         final Logger LOGGER = LogUtils.getLogger();
 
+        LOGGER.info("Mixin catched!");
+
         final LinkedTypewriterBlockEntity behaviour = (LinkedTypewriterBlockEntity) (Object) this;
 
         final Level level = behaviour.getLevel();
 
+        if (level == null) {
+            LOGGER.info("level = null");
+        }
+
         final Player player = level.getPlayerByUUID(userID);
+
+        if (player == null) {
+            LOGGER.info("Player = null");
+        }
 
         if (!(player instanceof ServerPlayer)) {return;}
 
