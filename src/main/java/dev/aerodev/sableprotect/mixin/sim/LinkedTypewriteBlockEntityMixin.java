@@ -1,5 +1,6 @@
 package dev.aerodev.sableprotect.mixin.sim;
 
+import dev.aerodev.sableprotect.SableProtectMod;
 import dev.simulated_team.simulated.content.blocks.redstone.linked_typewriter.LinkedTypewriterBlockEntity;
 import dev.aerodev.sableprotect.claim.ClaimRole;
 import dev.aerodev.sableprotect.protection.ProtectionHelper;
@@ -28,23 +29,20 @@ public class LinkedTypewriteBlockEntityMixin {
             remap = false
     )
     private void sableProtect$cancelsTypewriteFocus(UUID userID, CallbackInfoReturnable<Boolean> cir) {
-
-        final Logger LOGGER = LogUtils.getLogger();
-
-        LOGGER.info("Mixin catched!");
+        SableProtectMod.LOGGER.info("Mixin catched!");
 
         final LinkedTypewriterBlockEntity behaviour = (LinkedTypewriterBlockEntity) (Object) this;
 
         final Level level = behaviour.getLevel();
 
         if (level == null) {
-            LOGGER.info("level = null");
+            SableProtectMod.LOGGER.info("level = null");
         }
 
         final Player player = level.getPlayerByUUID(userID);
 
         if (player == null) {
-            LOGGER.info("Player = null");
+            SableProtectMod.LOGGER.info("Player = null");
         }
 
         if (!(player instanceof ServerPlayer)) {return;}
@@ -56,7 +54,7 @@ public class LinkedTypewriteBlockEntityMixin {
 
         if (ctx.claimData().isInteractionsProtected() && ctx.claimData().getRole(player.getUUID()) == ClaimRole.DEFAULT) {
             //behaviour.disconnectUser();
-            LOGGER.info("Attemping to cancel focus");
+            SableProtectMod.LOGGER.info("Attemping to cancel focus");
             cir.setReturnValue(false);
             ProtectionHelper.sendDeniedMessage((ServerPlayer) player);
         }
