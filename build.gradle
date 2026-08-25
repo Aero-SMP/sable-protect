@@ -47,6 +47,12 @@ repositories {
         url = 'https://maven.blamejared.com'
     }
 
+    //Registrate
+    maven {
+        name = 'Jozufozu'
+        url = 'https://maven.jozufozu.me/'
+    }
+
     // Create — needed at compile time for the contraption-breaker mixin types
     // (MovementContext, BlockBreakingMovementBehaviour, DrillMovementBehaviour).
     // Provided at runtime by the user's Create install.
