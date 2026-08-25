@@ -121,7 +121,7 @@ dependencies {
     implementation("dev.simulated_team.simulated:simulated-common-${project.minecraft_version}:${bundled_version}")
 
     // Create's ponder system, since it's needed to compile the typewrite mixin for some reason
-    implementation("net.createmod.ponder:ponder-neoforge:${project.minecraft_version}")
+    implementation("net.createmod.ponder:ponder-neoforge:1.0.82+mc${project.minecraft_version}")
 
     // Sable full mod for local dev runs only
     localRuntime("dev.ryanhcode.sable:sable-neoforge-${project.minecraft_version}:${project.sable_version}") {
