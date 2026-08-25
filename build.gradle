@@ -35,6 +35,7 @@ repositories {
         filter {
             includeGroup('dev.ryanhcode.sable')
             includeGroup('dev.ryanhcode.sable-companion')
+            includeGroup('dev.simulated_team.simulated')
         }
     }
 
@@ -115,6 +116,9 @@ dependencies {
 
     // Sable Companion — lightweight shim for optional Sable compatibility
     implementation("dev.ryanhcode.sable-companion:sable-companion-common-${project.minecraft_version}:${project.sable_companion_version}")
+
+    // Create Simulated, needed for the linked typewriter
+    implementation("dev.simulated_team.simulated:simulated-common-${project.minecraft_version}:${bundled_version}")
 
     // Sable full mod for local dev runs only
     localRuntime("dev.ryanhcode.sable:sable-neoforge-${project.minecraft_version}:${project.sable_version}") {

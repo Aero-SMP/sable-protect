@@ -1,4 +1,6 @@
 package dev.aerodev.sableprotect.mixin.sim;
+
+import dev.simulated_team.simulated.content.blocks.redstone.linked_typewriter.LinkedTypewriterBlockEntity;
 import dev.aerodev.sableprotect.claim.ClaimRole;
 import dev.aerodev.sableprotect.protection.ProtectionHelper;
 import net.minecraft.core.BlockPos;
@@ -15,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.UUID;
 
-@Mixin(targets = "dev.simulated_team.simulated.content.blocks.redstone.linked_typewrite.LinkedTypewriteBlockEntity", remap = false)
+@Mixin(value = LinkedTypewriterBlockEntity.class, remap = false)
 public class LinkedTypewriteBlockEntityMixin {
     @Inject(
             method = "checkAndStartUsing",
@@ -24,13 +26,15 @@ public class LinkedTypewriteBlockEntityMixin {
             remap = false
     )
     private void sableProtect$cancelsTypewriteFocus(UUID userID, CallbackInfoReturnable<Boolean> cir) {
-        final LinkedTypewriteBlockEntity behaviour = (LinkedTypewriteBlockEntity) (Object) this;
+        final LinkedTypewriterBlockEntity behaviour = (LinkedTypewriterBlockEntity) (Object) this;
 
-        final Player player = this.level.getPlayerByUUID(userID);
+        final Level level = behaviour.getLevel();
+
+        final Player player = level.getPlayerByUUID(userID);
 
         if (!(player instanceof ServerPlayer)) {return;}
 
-        final ProtectionHelper.ClaimContext ctx = ProtectionHelper.getClaimContext(this.level, this.getBlockPos());
+        final ProtectionHelper.ClaimContext ctx = ProtectionHelper.getClaimContext(level, behaviour.getBlockPos());
         if (ctx == null) return;
 
         if (ProtectionHelper.isAdminBypass((ServerPlayer) player)) return;
