@@ -24,7 +24,7 @@
     "compat.create.ValveHandleBlockMixin",
     "compat.create.ValveHandleBlockEntityMixin",
     "compat.create.LinkHandlerMixin",
-    "sim.LinkedTypewriteBlockEntityMixin"
+    "sim.LinkedTypewriteBlockMixin"
   ],
   "injectors": {
     "defaultRequire": 1
