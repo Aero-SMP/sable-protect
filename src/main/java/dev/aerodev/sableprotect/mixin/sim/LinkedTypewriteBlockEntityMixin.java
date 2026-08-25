@@ -21,7 +21,7 @@ import java.util.UUID;
 public class LinkedTypewriteBlockEntityMixin {
     @Inject(
             method = "checkAndStartUsing",
-            at = @At("HEAD"),
+            at = @At("RETURN"),
             cancellable = true,
             remap = false
     )
@@ -40,6 +40,7 @@ public class LinkedTypewriteBlockEntityMixin {
         if (ProtectionHelper.isAdminBypass((ServerPlayer) player)) return;
 
         if (ctx.claimData().isInteractionsProtected() && ctx.claimData().getRole(player.getUUID()) == ClaimRole.DEFAULT) {
+            behaviour.disconnectUser();
             cir.setReturnValue(false);
             ProtectionHelper.sendDeniedMessage((ServerPlayer) player);
         }
