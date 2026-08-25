@@ -23,8 +23,7 @@
     "compat.create.KineticScrollValueBehaviourMixin",
     "compat.create.ValveHandleBlockMixin",
     "compat.create.ValveHandleBlockEntityMixin",
-    "compat.create.LinkHandlerMixin",
-    "sim.LinkedTypewriteBlockMixin"
+    "compat.create.LinkHandlerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

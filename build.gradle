@@ -35,7 +35,6 @@ repositories {
         filter {
             includeGroup('dev.ryanhcode.sable')
             includeGroup('dev.ryanhcode.sable-companion')
-            includeGroup('dev.simulated_team.simulated')
         }
     }
 
@@ -45,12 +44,6 @@ repositories {
     maven {
         name = 'BlameJared'
         url = 'https://maven.blamejared.com'
-    }
-
-    //Registrate - a dependency for Create Simulated
-    maven {
-        name = 'Jozufozu'
-        url = 'https://maven.jozufozu.me/'
     }
 
     // Create — needed at compile time for the contraption-breaker mixin types
@@ -122,14 +115,6 @@ dependencies {
 
     // Sable Companion — lightweight shim for optional Sable compatibility
     implementation("dev.ryanhcode.sable-companion:sable-companion-common-${project.minecraft_version}:${project.sable_companion_version}")
-
-    // Create Simulated, needed for the linked typewriter
-    compileOnly("dev.simulated_team.simulated:simulated-common-${project.minecraft_version}:${bundled_version}"){
-        transitive = false
-    }
-
-    // Create's ponder system, since it's needed to compile the typewrite mixin for some reason
-    implementation("net.createmod.ponder:ponder-neoforge:1.0.82+mc${project.minecraft_version}")
 
     // Sable full mod for local dev runs only
     localRuntime("dev.ryanhcode.sable:sable-neoforge-${project.minecraft_version}:${project.sable_version}") {
