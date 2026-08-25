@@ -14,6 +14,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
 
 import java.util.UUID;
 
@@ -26,6 +28,9 @@ public class LinkedTypewriteBlockEntityMixin {
             remap = false
     )
     private void sableProtect$cancelsTypewriteFocus(UUID userID, CallbackInfoReturnable<Boolean> cir) {
+
+        final Logger LOGGER = LogUtils.getLogger();
+
         final LinkedTypewriterBlockEntity behaviour = (LinkedTypewriterBlockEntity) (Object) this;
 
         final Level level = behaviour.getLevel();
@@ -40,7 +45,8 @@ public class LinkedTypewriteBlockEntityMixin {
         if (ProtectionHelper.isAdminBypass((ServerPlayer) player)) return;
 
         if (ctx.claimData().isInteractionsProtected() && ctx.claimData().getRole(player.getUUID()) == ClaimRole.DEFAULT) {
-            behaviour.disconnectUser();
+            //behaviour.disconnectUser();
+            LOGGER.info("Attemping to cancel focus");
             cir.setReturnValue(false);
             ProtectionHelper.sendDeniedMessage((ServerPlayer) player);
         }
