@@ -47,7 +47,7 @@ repositories {
         url = 'https://maven.blamejared.com'
     }
 
-    //Registrate
+    //Registrate - a dependency for Create Simulated
     maven {
         name = 'Jozufozu'
         url = 'https://maven.jozufozu.me/'
@@ -124,7 +124,9 @@ dependencies {
     implementation("dev.ryanhcode.sable-companion:sable-companion-common-${project.minecraft_version}:${project.sable_companion_version}")
 
     // Create Simulated, needed for the linked typewriter
-    implementation("dev.simulated_team.simulated:simulated-common-${project.minecraft_version}:${bundled_version}")
+    compileOnly("dev.simulated_team.simulated:simulated-common-${project.minecraft_version}:${bundled_version}"){
+        transitive = false
+    }
 
     // Create's ponder system, since it's needed to compile the typewrite mixin for some reason
     implementation("net.createmod.ponder:ponder-neoforge:1.0.82+mc${project.minecraft_version}")
