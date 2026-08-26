@@ -24,7 +24,8 @@
     "compat.create.ValveHandleBlockMixin",
     "compat.create.ValveHandleBlockEntityMixin",
     "compat.create.LinkHandlerMixin",
-    "compat.create.ScrollValueBehaviourMixin"
+    "compat.create.ScrollValueBehaviourMixin",
+    "sim.NameplateBlockEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1
