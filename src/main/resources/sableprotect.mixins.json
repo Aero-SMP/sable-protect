@@ -20,6 +20,7 @@
     "compat.vanilla.MinecraftServerWatchdogMixin",
     "compat.vanilla.SmallFireballMixin",
     "compat.create.ItemUseOverridesMixin",
+    "compat.create.KineticScrollValueBehaviourMixin",
     "compat.create.ValveHandleBlockMixin",
     "compat.create.ValveHandleBlockEntityMixin",
     "compat.create.LinkHandlerMixin",
