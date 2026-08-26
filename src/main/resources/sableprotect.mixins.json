@@ -26,7 +26,8 @@
     "compat.create.LinkHandlerMixin",
     "compat.create.ScrollValueBehaviourMixin",
     "sim.NameplateBlockEntityMixin",
-    "compat.create.FilteringBehaviourMixin"
+    "compat.create.FilteringBehaviourMixin",
+    "compat.create.BrassDiodeScrollValueBehaviourMixin"
   ],
   "injectors": {
     "defaultRequire": 1
