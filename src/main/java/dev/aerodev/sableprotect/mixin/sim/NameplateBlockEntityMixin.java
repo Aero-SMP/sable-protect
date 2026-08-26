@@ -18,11 +18,10 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import javax.annotation.Nullable;
 
-@Mixin(targets = "dev.simulated_team.simulated.content.blocks.nameplate.NameplateScreenEntity", remap = false)
+@Mixin(targets = "dev.simulated_team.simulated.content.blocks.nameplate.NameplateBlockEntity", remap = false)
 public class NameplateBlockEntityMixin {
     @Inject(
             method = "setName",
@@ -31,8 +30,7 @@ public class NameplateBlockEntityMixin {
             remap = false
     )
     private void sableProtect$cancelsRename(String name, boolean updateNameplates, @Nullable Player player, CallbackInfo ci) {
-        if (player == null) {return;}
-        if (!(player instanceof ServerPlayer)) {return;}
+        if (!(player instanceof ServerPlayer serverPlayer)) {return;}
 
         BlockEntity blockEntity = (BlockEntity) (Object) this;
 
