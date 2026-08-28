@@ -1,5 +1,9 @@
 set -eu
-session=$1 window=$2 folder=$3 artifact=$4 prefix=$5 target="$session:$window.0"
+session=$1 window=$2 folder=$3 artifact=$4 prefix=$5 repo_url=$6 branch=$7 repo="$HOME/Desktop/$8" target="$session:$window.0"
+if [ ! -d "$repo/.git" ]; then
+  mkdir -p "$HOME/Desktop"
+  git clone "$repo_url" "$repo" || { echo "Failed to clone $repo_url into $repo" >&2; exit 1; }
+fi
 tmux has-session -t "$session"
 tmux list-windows -t "$session" -F '#{window_name}' | grep -Fxq "$window" ||
   tmux new-window -d -t "$session" -n "$window" -c "$folder"
@@ -17,3 +21,6 @@ mv "$folder/.$prefix-deploy.jar" "$folder/mods/$artifact"
 tmux send-keys -t "$target" C-u
 tmux send-keys -t "$target" -l "cd $folder && ./run.sh"
 tmux send-keys -t "$target" Enter
+git -C "$repo" fetch origin
+git -C "$repo" switch "$branch"
+git -C "$repo" pull --ff-only origin "$branch"

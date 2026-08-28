@@ -189,9 +189,24 @@ tasks.named('test', Test).configure {
 
 File deployConfigFile = file('deploytmux.properties')
 Properties deployConfig = new Properties()
+String deployBranch, deployRepoUrl
+
+def deployCommit = tasks.register('deployCommit') {
+    doLast {
+        print 'Commit message: '
+        System.out.flush()
+        String message = System.in.newReader().readLine()?.trim()
+        if (!message) throw new GradleException('Commit message cannot be empty')
+        [['add', '.'], ['commit', '-m', message], ['push', 'origin', deployBranch]].each { arguments ->
+            Process git = new ProcessBuilder(['git'] + arguments).inheritIO().start()
+            if (git.waitFor()) throw new GradleException("git ${arguments[0]} failed")
+        }
+    }
+}
+tasks.configureEach { if (name != 'deployCommit') mustRunAfter deployCommit }
 
 def deploytmux = tasks.register('deploytmux', Exec) {
-    dependsOn jar
+    dependsOn deployCommit, jar
 
     doFirst {
         String host = deployConfig.getProperty('host')
@@ -203,7 +218,7 @@ def deploytmux = tasks.register('deploytmux', Exec) {
         providers.exec {
             commandLine 'scp', artifact.absolutePath, "${host}:${folder}/.${mod_id}-deploy.jar"
         }.result.get().assertNormalExitValue()
-        commandLine 'ssh', host, 'sh', '-s', '--', session, window, folder, artifact.name, mod_id
+        commandLine 'ssh', host, 'sh', '-s', '--', session, window, folder, artifact.name, mod_id, deployRepoUrl, deployBranch, rootProject.name
         standardInput = new ByteArrayInputStream(file('gradle/deploytmux.sh').getText('UTF-8').replace('\r\n', '\n').getBytes('UTF-8'))
     }
 }
@@ -219,6 +234,9 @@ window=Mod_Testing
     deployConfigFile.withInputStream { deployConfig.load(it) }
     if (deployConfig.getProperty('configured') != 'true')
         throw new GradleException("Set configured=true in ${deployConfigFile} before deploying")
+    deployBranch = providers.exec { commandLine 'git', 'branch', '--show-current' }.standardOutput.asText.get().trim()
+    deployRepoUrl = providers.exec { commandLine 'git', 'remote', 'get-url', 'origin' }.standardOutput.asText.get().trim()
+    if (!deployBranch) throw new GradleException('deploytmux requires a local branch')
 }
 
 idea {
