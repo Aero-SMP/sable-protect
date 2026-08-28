@@ -1,7 +1,7 @@
 set -eu
-session=$1 window=$2 folder=$3 artifact=$4 prefix=$5 repo_url=$6 branch=$7 repo="$HOME/Desktop/$8" target="$session:$window.0"
+session=$1 window=$2 folder=$3 artifact=$4 prefix=$5 repo_url=$6 branch=$7 repo=$8 target="$session:$window.0"
 if [ ! -d "$repo/.git" ]; then
-  mkdir -p "$HOME/Desktop"
+  mkdir -p "$(dirname "$repo")"
   git clone "$repo_url" "$repo" || { echo "Failed to clone $repo_url into $repo" >&2; exit 1; }
 fi
 tmux has-session -t "$session"
