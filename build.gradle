@@ -197,13 +197,21 @@ if (deployMessage) gradle.startParameter.setTaskNames(requestedTasks.take(deploy
 
 def deployCommit = tasks.register('deployCommit') {
     doLast {
-        if (!deployMessage) {
-            print 'Please write a commit message to continue the build: '
-            System.out.flush()
+        Process status = new ProcessBuilder(['git', 'status', '--porcelain']).start()
+        String changes = status.inputStream.text
+        if (status.waitFor()) throw new GradleException('git status failed')
+        List commands = []
+        if (changes) {
+            if (!deployMessage) {
+                print 'Please write a commit message to continue the build: '
+                System.out.flush()
+            }
+            String message = deployMessage ?: System.in.newReader().readLine()?.trim()
+            if (!message) throw new GradleException('Commit message cannot be empty')
+            commands.addAll([['add', '.'], ['commit', '-m', message]])
         }
-        String message = deployMessage ?: System.in.newReader().readLine()?.trim()
-        if (!message) throw new GradleException('Commit message cannot be empty')
-        [['add', '.'], ['commit', '-m', message], ['push', 'origin', deployBranch]].each { arguments ->
+        commands.add(['push', 'origin', deployBranch])
+        commands.each { arguments ->
             Process git = new ProcessBuilder(['git'] + arguments).inheritIO().start()
             if (git.waitFor()) throw new GradleException("git ${arguments[0]} failed")
         }
@@ -219,7 +227,7 @@ def deploytmux = tasks.register('deploytmux', Exec) {
         String folder = deployConfig.getProperty('folder')
         String session = deployConfig.getProperty('session')
         String window = deployConfig.getProperty('window')
-        String repo = deployConfig.getProperty('repo') ?: '~/Desktop'
+        String repo = deployConfig.getProperty('repo')
         File artifact = tasks.named('jar', Jar).get().archiveFile.get().asFile
 
         providers.exec {
@@ -237,9 +245,13 @@ host=printer@ssh.aerosmp.com
 folder=/home/printer/Desktop/Mod_Testing
 session=printer_session
 window=Mod_Testing
-repo=~/Desktop
 ''', 'UTF-8')
     deployConfigFile.withInputStream { deployConfig.load(it) }
+    if (!deployConfig.getProperty('repo')) {
+        String repo = "/home/${deployConfig.getProperty('host').split('@')[0]}/Desktop"
+        deployConfigFile.append("repo=$repo\n", 'UTF-8')
+        deployConfig.setProperty('repo', repo)
+    }
     if (deployConfig.getProperty('configured') != 'true')
         throw new GradleException("Set configured=true in ${deployConfigFile} before deploying")
     deployBranch = providers.exec { commandLine 'git', 'branch', '--show-current' }.standardOutput.asText.get().trim()
