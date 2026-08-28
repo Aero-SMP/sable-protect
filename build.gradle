@@ -23,6 +23,7 @@ sourceSets.main.resources {
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
 
     exclusiveContent {
