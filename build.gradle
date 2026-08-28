@@ -193,7 +193,7 @@ String deployBranch, deployRepoUrl
 
 def deployCommit = tasks.register('deployCommit') {
     doLast {
-        print 'Commit message: '
+        print 'Please write a commit message to continue the build: '
         System.out.flush()
         String message = System.in.newReader().readLine()?.trim()
         if (!message) throw new GradleException('Commit message cannot be empty')
