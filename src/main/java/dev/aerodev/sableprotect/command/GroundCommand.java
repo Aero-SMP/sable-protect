@@ -11,6 +11,7 @@ import dev.aerodev.sableprotect.freeze.PendingFetchManager;
 import dev.aerodev.sableprotect.protection.ProtectionHelper;
 import dev.aerodev.sableprotect.util.CrewPresence;
 import dev.aerodev.sableprotect.util.Lang;
+import dev.ryanhcode.sable.api.SubLevelAssemblyHelper;
 import dev.ryanhcode.sable.api.physics.PhysicsPipeline;
 import dev.ryanhcode.sable.api.sublevel.ServerSubLevelContainer;
 import dev.ryanhcode.sable.api.sublevel.SubLevelContainer;
@@ -50,7 +51,7 @@ public final class GroundCommand {
 
     /** Buffer above the surface heightmap to drop the sub-level at. Higher than fetch's
      *  +5 to give plenty of room for awkward hulls and avoid clipping into terrain. */
-    private static final int GROUND_HEIGHT_BUFFER = 20;
+    private static final int GROUND_HEIGHT_BUFFER = 0;
 
     private GroundCommand() {}
 
@@ -152,7 +153,8 @@ public final class GroundCommand {
         }
         final PhysicsPipeline pipeline = container.physicsSystem().getPipeline();
         pipeline.resetVelocity(subLevel);
-        pipeline.teleport(subLevel, destination, orientation);
+        //pipeline.teleport(subLevel, destination, orientation);
+        SubLevelAssemblyHelper.animateTo(subLevel.getUniqueId(),  BlockPos.containing(destination.x, destination.y, destination.z));
 
         final int durationSeconds = SableProtectConfig.FREEZE_DURATION_SECONDS.get();
         final long durationTicks = durationSeconds * 20L;

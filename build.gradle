@@ -34,7 +34,6 @@ repositories {
             }
         }
         filter {
-            includeGroup('dev.ryanhcode.sable')
             includeGroup('dev.ryanhcode.sable-companion')
         }
     }
@@ -68,8 +67,11 @@ base {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_23
+    targetCompatibility = JavaVersion.VERSION_23
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(23)
+    }
 }
 
 neoForge {
