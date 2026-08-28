@@ -1,5 +1,6 @@
 package dev.aerodev.sableprotect.protection;
 
+import com.simibubi.create.content.contraptions.actors.seat.SeatBlock;
 import dev.aerodev.sableprotect.claim.ClaimData;
 import dev.aerodev.sableprotect.claim.ClaimRole;
 import dev.aerodev.sableprotect.protection.ProtectionHelper.ClaimContext;
@@ -33,7 +34,7 @@ public class InteractionProtectionHandler {
         final BlockState state = player.level().getBlockState(event.getPos());
 
         // Doors and fence gates are always interactable (player movement only)
-        if (state.getBlock() instanceof DoorBlock || state.getBlock() instanceof FenceGateBlock) return;
+        if (state.getBlock() instanceof DoorBlock || state.getBlock() instanceof FenceGateBlock || state.getBlock() instanceof SeatBlock) return;
 
         final ClaimContext ctx = ProtectionHelper.getClaimContext(player.level(), event.getPos());
         if (ctx == null) return;
