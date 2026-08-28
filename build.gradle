@@ -204,7 +204,7 @@ def deploytmux = tasks.register('deploytmux', Exec) {
             commandLine 'scp', artifact.absolutePath, "${host}:${folder}/.${mod_id}-deploy.jar"
         }.result.get().assertNormalExitValue()
         commandLine 'ssh', host, 'sh', '-s', '--', session, window, folder, artifact.name, mod_id
-        standardInput = new ByteArrayInputStream(file('gradle/deploytmux.sh').bytes)
+        standardInput = new ByteArrayInputStream(file('gradle/deploytmux.sh').getText('UTF-8').replace('\r\n', '\n').getBytes('UTF-8'))
     }
 }
 
