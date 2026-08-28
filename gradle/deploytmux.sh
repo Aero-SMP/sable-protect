@@ -1,0 +1,19 @@
+set -eu
+session=$1 window=$2 folder=$3 artifact=$4 prefix=$5 target="$session:$window.0"
+tmux has-session -t "$session"
+tmux list-windows -t "$session" -F '#{window_name}' | grep -Fxq "$window" ||
+  tmux new-window -d -t "$session" -n "$window" -c "$folder"
+tmux send-keys -t "$target" Escape C-u C-c
+pane_pid=$(tmux display-message -p -t "$target" '#{pane_pid}')
+attempt=0
+while foreground_group=$(ps -o tpgid= -p "$pane_pid");
+  ps -e -o pgid=,comm= | awk -v pgid="$foreground_group" '$1 == pgid && $2 !~ /^(bash|zsh|fish|sh)$/ { running=1 } END { exit !running }'; do
+  attempt=$((attempt + 1))
+  [ "$attempt" -lt 3000 ] || { echo "Server in tmux target $target did not stop within 5 minutes" >&2; exit 1; }
+  sleep .1
+done
+find "$folder/mods" -maxdepth 1 -type f -name "$prefix*.jar" -delete
+mv "$folder/.$prefix-deploy.jar" "$folder/mods/$artifact"
+tmux send-keys -t "$target" C-u
+tmux send-keys -t "$target" -l "cd $folder && ./run.sh"
+tmux send-keys -t "$target" Enter

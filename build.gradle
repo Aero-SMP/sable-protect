@@ -187,6 +187,40 @@ tasks.named('test', Test).configure {
     useJUnitPlatform()
 }
 
+File deployConfigFile = file('deploytmux.properties')
+Properties deployConfig = new Properties()
+
+def deploytmux = tasks.register('deploytmux', Exec) {
+    dependsOn jar
+
+    doFirst {
+        String host = deployConfig.getProperty('host')
+        String folder = deployConfig.getProperty('folder')
+        String session = deployConfig.getProperty('session')
+        String window = deployConfig.getProperty('window')
+        File artifact = tasks.named('jar', Jar).get().archiveFile.get().asFile
+
+        providers.exec {
+            commandLine 'scp', artifact.absolutePath, "${host}:${folder}/.${mod_id}-deploy.jar"
+        }.result.get().assertNormalExitValue()
+        commandLine 'ssh', host, 'sh', '-s', '--', session, window, folder, artifact.name, mod_id
+        standardInput = file('gradle/deploytmux.sh').newInputStream()
+    }
+}
+
+gradle.taskGraph.whenReady {
+    if (!it.hasTask(deploytmux.get())) return
+    if (!deployConfigFile.exists()) deployConfigFile.setText('''configured=false
+host=printer@ssh.aerosmp.com
+folder=/home/printer/Desktop/Mod_Testing
+session=printer_session
+window=Mod_Testing
+''', 'UTF-8')
+    deployConfigFile.withInputStream { deployConfig.load(it) }
+    if (deployConfig.getProperty('configured') != 'true')
+        throw new GradleException("Set configured=true in ${deployConfigFile} before deploying")
+}
+
 idea {
     module {
         downloadSources = true

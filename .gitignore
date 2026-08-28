@@ -2,6 +2,7 @@
 .gradle/
 build/
 repo/
+deploytmux.properties
 
 # Run directories
 run/
