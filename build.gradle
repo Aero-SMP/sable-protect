@@ -219,7 +219,7 @@ def deploytmux = tasks.register('deploytmux', Exec) {
         String folder = deployConfig.getProperty('folder')
         String session = deployConfig.getProperty('session')
         String window = deployConfig.getProperty('window')
-        String repo = deployConfig.getProperty('repo')
+        String repo = deployConfig.getProperty('repo') ?: '~/Desktop'
         File artifact = tasks.named('jar', Jar).get().archiveFile.get().asFile
 
         providers.exec {
@@ -237,12 +237,11 @@ host=printer@ssh.aerosmp.com
 folder=/home/printer/Desktop/Mod_Testing
 session=printer_session
 window=Mod_Testing
-repo=/home/printer/Desktop
+repo=~/Desktop
 ''', 'UTF-8')
     deployConfigFile.withInputStream { deployConfig.load(it) }
     if (deployConfig.getProperty('configured') != 'true')
         throw new GradleException("Set configured=true in ${deployConfigFile} before deploying")
-    if (!deployConfig.getProperty('repo')) throw new GradleException("Set repo in ${deployConfigFile} before deploying")
     deployBranch = providers.exec { commandLine 'git', 'branch', '--show-current' }.standardOutput.asText.get().trim()
     deployRepoUrl = providers.exec { commandLine 'git', 'remote', 'get-url', 'origin' }.standardOutput.asText.get().trim()
     if (!deployBranch) throw new GradleException('deploytmux requires a local branch')
