@@ -23,7 +23,11 @@
     "compat.create.KineticScrollValueBehaviourMixin",
     "compat.create.ValveHandleBlockMixin",
     "compat.create.ValveHandleBlockEntityMixin",
-    "compat.create.LinkHandlerMixin"
+    "compat.create.LinkHandlerMixin",
+    "compat.create.ScrollValueBehaviourMixin",
+    "sim.NameplateBlockEntityMixin",
+    "compat.create.FilteringBehaviourMixin",
+    "compat.create.BrassDiodeScrollValueBehaviourMixin"
   ],
   "injectors": {
     "defaultRequire": 1
