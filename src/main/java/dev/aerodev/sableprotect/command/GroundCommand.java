@@ -159,10 +159,10 @@ public final class GroundCommand {
         final int durationSeconds = SableProtectConfig.FREEZE_DURATION_SECONDS.get();
         final long durationTicks = durationSeconds * 20L;
         final long currentTick = level.getServer().getTickCount();
-        if (!freezeManager.freeze(subLevel, destination, orientation, durationTicks, currentTick)) {
-            player.displayClientMessage(Lang.tr("sableprotect.fetch.freeze_unavailable"), false);
-            return 0;
-        }
+        //if (!freezeManager.freeze(subLevel, destination, orientation, durationTicks, currentTick)) {
+        //    player.displayClientMessage(Lang.tr("sableprotect.fetch.freeze_unavailable"), false);
+        //    return 0;
+        //}
 
         player.displayClientMessage(
                 Lang.tr("sableprotect.ground.success", name,
