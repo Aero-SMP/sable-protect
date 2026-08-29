@@ -129,6 +129,8 @@ public final class FreezeManager {
             if (currentTick >= state.expiryTick) {
                 releaseHeldChunk(server, state);
                 it.remove();
+                //Reset sub-level velocity
+                SubLevelContainer.getContainer(subLevel.getLevel()).physicsSystem().getPipeline().resetVelocity(subLevel);
                 notifyExpired(server, state);
                 continue;
             }
@@ -189,6 +191,7 @@ public final class FreezeManager {
             if (player != null) {
                 player.displayClientMessage(
                         Lang.tr("sableprotect.fetch.freeze_expired", state.displayName), false);
+
             }
         }
     }
