@@ -43,6 +43,7 @@ public final class SpCommand {
                         .then(MyClaimsCommand.register(registry))
                         .then(FetchCommand.register(registry, freezeManager, pendingFetchManager))
                         .then(GroundCommand.register(registry, freezeManager, pendingFetchManager))
+                        .then(GroundCommand2.register(registry, freezeManager, pendingFetchManager))
                         .then(StealCommand.register(registry))
                         .then(DebugCommand.register())
                         .then(BypassCommand.register())
