@@ -158,8 +158,9 @@ public final class GroundCommand {
         final long durationTicks = durationSeconds * 20L;
         SubLevelAssemblyHelper.animateTo(subLevel.getUniqueId(),  BlockPos.containing(destination.x, destination.y, destination.z), callback -> {
             final long currentTick = level.getServer().getTickCount();
+            Pose3d newpose = subLevel.logicalPose();
 
-            if (!freezeManager.freeze(subLevel, destination, orientation, durationTicks, currentTick)) {
+            if (!freezeManager.freeze(subLevel, new Vector3d(newpose.position().x, newpose.position().y, newpose.position().z), new Quaterniond(newpose.orientation()), durationTicks, currentTick)) {
                 player.displayClientMessage(Lang.tr("sableprotect.fetch.freeze_unavailable"), false);
                 return;
             }
