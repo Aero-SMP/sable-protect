@@ -154,22 +154,22 @@ public final class GroundCommand {
         final PhysicsPipeline pipeline = container.physicsSystem().getPipeline();
         pipeline.resetVelocity(subLevel);
         //pipeline.teleport(subLevel, destination, orientation);
-        SubLevelAssemblyHelper.animateTo(subLevel.getUniqueId(),  BlockPos.containing(destination.x, destination.y, destination.z));
-
         final int durationSeconds = SableProtectConfig.FREEZE_DURATION_SECONDS.get();
         final long durationTicks = durationSeconds * 20L;
-        final long currentTick = level.getServer().getTickCount();
-        //if (!freezeManager.freeze(subLevel, destination, orientation, durationTicks, currentTick)) {
-        //    player.displayClientMessage(Lang.tr("sableprotect.fetch.freeze_unavailable"), false);
-        //    return 0;
-        //}
+        SubLevelAssemblyHelper.animateTo(subLevel.getUniqueId(),  BlockPos.containing(destination.x, destination.y, destination.z), callback -> {
+            final long currentTick = level.getServer().getTickCount();
 
-        player.displayClientMessage(
-                Lang.tr("sableprotect.ground.success", name,
-                        Component.literal((int) destination.x + ", " + (int) destination.y + ", " + (int) destination.z)
-                                .withStyle(ChatFormatting.AQUA),
-                        durationSeconds),
-                false);
+            if (!freezeManager.freeze(subLevel, destination, orientation, durationTicks, currentTick)) {
+                player.displayClientMessage(Lang.tr("sableprotect.fetch.freeze_unavailable"), false);
+                return;
+            }
+            player.displayClientMessage(
+                    Lang.tr("sableprotect.ground.success", name,
+                            Component.literal((int) destination.x + ", " + (int) destination.y + ", " + (int) destination.z)
+                                    .withStyle(ChatFormatting.AQUA),
+                            durationSeconds),
+                    false);
+        });
         return 1;
     }
 
