@@ -139,12 +139,12 @@ public final class GroundCommand2 {
                 player.displayClientMessage(Lang.tr("sableprotect.fetch.failed"), false);
                 return 0;
             }
-            final PhysicsPipeline pipeline = container.physicsSystem().getPipeline();
-            pipeline.resetVelocity(subLevel);
             SableProtectMod.LOGGER.info("[sable-protect][debug]   Found SubLevelContainer");
             //If it is found in the container, continues as normal, except with the new arguements of plotChunk and dimension, so FreezeManager can unload the chunk after freezing
             final SubLevel found = container.getSubLevel(subLevelId);
             if (found instanceof ServerSubLevel ssl && !ssl.isRemoved()) {
+                final PhysicsPipeline pipeline = container.physicsSystem().getPipeline();
+                pipeline.resetVelocity(subLevel);
                 SableProtectMod.LOGGER.info("[sable-protect][debug]   Sub-level loaded synchronously; grounding now.");
                 return groundSublevel(player, name, ssl, freezeManager, plotChunk, dimension);
             } else {
