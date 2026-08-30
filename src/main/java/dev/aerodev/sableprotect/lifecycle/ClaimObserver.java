@@ -15,10 +15,9 @@ import dev.ryanhcode.sable.sublevel.SubLevel;
 import dev.ryanhcode.sable.sublevel.storage.SubLevelRemovalReason;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+
+import static dev.aerodev.sableprotect.command.GroundCommand2.groundSublevel;
 
 public class ClaimObserver implements SubLevelObserver {
 
@@ -83,6 +82,12 @@ public class ClaimObserver implements SubLevelObserver {
             // teleport + freeze using the queued params.
             final PendingFetchManager.Entry pending = pendingFetchManager.consume(id);
             if (pending != null) {
+                if (Objects.equals(pending.successLangKey(), "sableprotect.ground.success")) {
+                    SableProtectMod.LOGGER.info(
+                            "[sable-protect][debug]   matched pending fetch entry; grounding now");
+                    groundSublevel(subLevel.getLevel().getServer().getPlayerList().getPlayer(pending.requester()), pending.displayName(), serverSubLevel, freezeManager, pending.plotChunk(), pending.dimension());
+                    return;
+                }
                 SableProtectMod.LOGGER.info(
                         "[sable-protect][debug]   matched pending fetch entry; dispatching now");
                 FetchCommand.executePendingFetch(serverSubLevel, pending, freezeManager);

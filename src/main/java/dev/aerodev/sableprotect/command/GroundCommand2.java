@@ -147,9 +147,29 @@ public final class GroundCommand2 {
                 pipeline.resetVelocity(subLevel);
                 SableProtectMod.LOGGER.info("[sable-protect][debug]   Sub-level loaded synchronously; grounding now.");
                 return groundSublevel(player, name, ssl, freezeManager, plotChunk, dimension);
-            } else {
-                SableProtectMod.LOGGER.info("[sable-protect][debug]   Sub-level was not loaded correctly");
             }
+            //Continues if Sub-Level is not in container yet
+            SableProtectMod.LOGGER.info("[sable-protect][debug]   Sub-level was not loaded correctly");
+            final long currentTick = server.getTickCount();
+            final int durationSeconds = SableProtectConfig.FREEZE_DURATION_SECONDS.get();
+            final long durationTicks = durationSeconds * currentTick;
+            final long deadline = currentTick + PendingFetchManager.DEFAULT_TIMEOUT_TICKS;
+
+            final PendingFetchManager.Entry entry = new PendingFetchManager.Entry(
+                    subLevelId, dimension, plotChunk, new Vector3d(lastPos.x, lastPos.y, lastPos.z),
+                    /* snap upright on dispatch */ null,
+                    (int) durationTicks, player.getUUID(), name,
+                    "sableprotect.ground.success", deadline);
+            pendingFetchManager.register(entry);
+            SableProtectMod.LOGGER.info(
+                    "[sable-protect][debug]   Sub-level not yet in container — registered pending fetch (deadline tick {}, ~{} ticks from now)",
+                    entry.deadlineTick(),
+                    entry.deadlineTick() - level.getServer().getTickCount());
+
+            player.displayClientMessage(Lang.tr("sableprotect.ground.unloaded_loading", name), false);
+
+            return 1;
+
         } catch (final Throwable t) {
             SableProtectMod.LOGGER.warn(
                     "[sable-protect][debug]   chunk load threw {}: {}",
@@ -160,7 +180,7 @@ public final class GroundCommand2 {
         return 0;
     }
 
-    private static int groundSublevel(final ServerPlayer player, final String name,
+    public static int groundSublevel(final ServerPlayer player, final String name,
                                       final ServerSubLevel subLevel,
                                       final FreezeManager freezeManager,
                                       final @Nullable ChunkPos heldChunk,
