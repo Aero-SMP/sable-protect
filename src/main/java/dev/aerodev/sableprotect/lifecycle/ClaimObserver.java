@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-import static dev.aerodev.sableprotect.command.GroundCommand2.groundSublevel;
+import static dev.aerodev.sableprotect.command.GroundCommand.groundSublevel;
 
 public class ClaimObserver implements SubLevelObserver {
 
