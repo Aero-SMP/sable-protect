@@ -13,6 +13,8 @@ import dev.ryanhcode.sable.api.sublevel.SubLevelObserver;
 import dev.ryanhcode.sable.sublevel.ServerSubLevel;
 import dev.ryanhcode.sable.sublevel.SubLevel;
 import dev.ryanhcode.sable.sublevel.storage.SubLevelRemovalReason;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -42,6 +44,7 @@ public class ClaimObserver implements SubLevelObserver {
     private final PendingFetchManager pendingFetchManager;
 
     private final Map<UUID, PendingEntry> pending = new HashMap<>();
+    private final Map<UUID, PendingFetchManager.Entry> pendingGrounds = new HashMap<>();
 
     public ClaimObserver(final ClaimRegistry registry, final SubLevelContainer container,
                          final FreezeManager freezeManager,
@@ -82,14 +85,10 @@ public class ClaimObserver implements SubLevelObserver {
             // teleport + freeze using the queued params.
             final PendingFetchManager.Entry pending = pendingFetchManager.consume(id);
             if (pending != null) {
-                if (Objects.equals(pending.successLangKey(), "sableprotect.ground.success")) {
+                if ("sableprotect.ground.success".equals(pending.successLangKey())) {
                     SableProtectMod.LOGGER.info(
                             "[sable-protect][debug]   matched pending fetch entry; grounding now");
-                    if (groundSublevel(subLevel.getLevel().getServer().getPlayerList().getPlayer(pending.requester()), pending.displayName(), serverSubLevel, freezeManager, pending.plotChunk(), pending.dimension()) == 0) {
-                        subLevel.getLevel().getServer().getLevel(pending.dimension()).setChunkForced(pending.plotChunk().x, pending.plotChunk().z, false);
-                        return;
-                    }
-
+                    pendingGrounds.put(id, pending);
                     return;
                 }
                 SableProtectMod.LOGGER.info(
@@ -148,6 +147,7 @@ public class ClaimObserver implements SubLevelObserver {
 
     @Override
     public void tick(final SubLevelContainer subLevels) {
+        processPendingGround(subLevels);
         if (pending.isEmpty()) return;
 
         final int minMass = SableProtectConfig.MINIMUM_CLAIM_MASS.get();
@@ -171,6 +171,40 @@ public class ClaimObserver implements SubLevelObserver {
 
             applyInheritance(serverSubLevel, pendingEntry.parentClaim, mass, minMass);
             it.remove();
+        }
+    }
+
+    //This is to wait until the Sub-level plot is filled up so animateTo works
+    private void processPendingGround(final SubLevelContainer subLevels) {
+        Iterator<Map.Entry<UUID, PendingFetchManager.Entry>> iterator = pendingGrounds.entrySet().iterator();
+
+        while (iterator.hasNext()) {
+            Map.Entry<UUID, PendingFetchManager.Entry> queued = iterator.next();
+            if (!(subLevels.getSubLevel(queued.getKey()) instanceof ServerSubLevel subLevel)) {
+                continue;
+            }
+
+            PendingFetchManager.Entry entry = queued.getValue();
+            MinecraftServer server = subLevel.getLevel().getServer();
+            ServerPlayer requester = server.getPlayerList().getPlayer(entry.requester());
+
+            if (requester == null) {
+                if (server.getLevel(entry.dimension()) != null) {
+                    server.getLevel(entry.dimension()).setChunkForced(entry.plotChunk().x, entry.plotChunk().z, false);
+                iterator.remove();
+                continue;
+                }
+            }
+
+            int result = groundSublevel(requester, entry.displayName(), subLevel, freezeManager, entry.plotChunk(), entry.dimension());
+
+            if (result == 0) {
+                if (server.getLevel(entry.dimension()) != null) {
+                    server.getLevel(entry.dimension()).setChunkForced(entry.plotChunk().x, entry.plotChunk().z, false);
+                    iterator.remove();
+                }
+            }
+            iterator.remove();
         }
     }
 
