@@ -196,16 +196,6 @@ public final class GroundCommand2 {
         final Vector3dc currentPos = pose.position();
         final MinecraftServer server = level.getServer();
 
-        if (subLevel.getPlot().getLoadedChunks().isEmpty()) {
-            if (groundTrys <= 0 && heldChunk != null) {
-                level.setChunkForced(heldChunk.x, heldChunk.z, false);
-                player.displayClientMessage(Lang.tr("sableprotect.fetch.failed", name), false);
-                return 0;
-            }
-            groundTrys -= 1;
-            return groundSublevel(player, name, subLevel, freezeManager, heldChunk, heldChunkDimension);
-        }
-
         //Checks if a player is aboard the sub-level before grounding
         ServerPlayer playerAboard = findPlayerAboard(server, subLevel);
         if (playerAboard != null) {
@@ -229,31 +219,34 @@ public final class GroundCommand2 {
         final long durationTicks = (long) (durationSeconds * server.tickRateManager().tickrate());
 
         //Starts the animation, then freezes the sub-level
+        try {
+            SubLevelAssemblyHelper.animateTo(subLevel.getUniqueId(), BlockPos.containing(destination.x, destination.y, destination.z), callback -> {
+                SableProtectMod.LOGGER.info("[sable-protect][debug]   Callback Called");
+                final long currentTick = level.getServer().getTickCount();
+                Pose3d newpose = subLevel.logicalPose();
 
-        SubLevelAssemblyHelper.animateTo(subLevel.getUniqueId(),  BlockPos.containing(destination.x, destination.y, destination.z), callback -> {
-            SableProtectMod.LOGGER.info("[sable-protect][debug]   Callback Called");
-            final long currentTick = level.getServer().getTickCount();
-            Pose3d newpose = subLevel.logicalPose();
+                //Needed so if the chunk is force loaded, it can be unloaded after freeze is done
+                boolean freeze;
+                if (heldChunk != null) {
+                    freeze = freezeManager.freeze(subLevel, new Vector3d(newpose.position().x, newpose.position().y, newpose.position().z), new Quaterniond(newpose.orientation()), durationTicks, currentTick, heldChunk, heldChunkDimension);
+                } else {
+                    freeze = freezeManager.freeze(subLevel, new Vector3d(newpose.position().x, newpose.position().y, newpose.position().z), new Quaterniond(newpose.orientation()), durationTicks, currentTick);
+                }
 
-            //Needed so if the chunk is force loaded, it can be unloaded after freeze is done
-            boolean freeze;
-            if (heldChunk != null) {
-                freeze = freezeManager.freeze(subLevel, new Vector3d(newpose.position().x, newpose.position().y, newpose.position().z), new Quaterniond(newpose.orientation()), durationTicks, currentTick, heldChunk, heldChunkDimension);
-            } else {
-                freeze = freezeManager.freeze(subLevel, new Vector3d(newpose.position().x, newpose.position().y, newpose.position().z), new Quaterniond(newpose.orientation()), durationTicks, currentTick);
-            }
-
-            if (!freeze) {
-                player.displayClientMessage(Lang.tr("sableprotect.fetch.freeze_unavailable"), false);
-                return;
-            }
-            player.displayClientMessage(
-                    Lang.tr("sableprotect.ground.success", name,
-                            Component.literal((int) destination.x + ", " + (int) destination.y + ", " + (int) destination.z)
-                                    .withStyle(ChatFormatting.AQUA),
-                            durationSeconds),
-                    false);
-        });
+                if (!freeze) {
+                    player.displayClientMessage(Lang.tr("sableprotect.fetch.freeze_unavailable"), false);
+                    return;
+                }
+                player.displayClientMessage(
+                        Lang.tr("sableprotect.ground.success", name,
+                                Component.literal((int) destination.x + ", " + (int) destination.y + ", " + (int) destination.z)
+                                        .withStyle(ChatFormatting.AQUA),
+                                durationSeconds),
+                        false);
+            });
+        } catch (RuntimeException e) {
+            throw new RuntimeException(e);
+        }
         return 1;
 
     }
