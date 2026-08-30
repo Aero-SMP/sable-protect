@@ -185,6 +185,7 @@ public final class GroundCommand2 {
                                       final FreezeManager freezeManager,
                                       final @Nullable ChunkPos heldChunk,
                                       final @Nullable ResourceKey<Level> heldChunkDimension) {
+        SableProtectMod.LOGGER.info("[sable-protect][debug]   groundSublevel was called");
         final ServerLevel level = subLevel.getLevel();
         final Pose3d pose = subLevel.logicalPose();
         final Vector3dc currentPos = pose.position();
