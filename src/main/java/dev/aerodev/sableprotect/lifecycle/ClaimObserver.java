@@ -85,7 +85,11 @@ public class ClaimObserver implements SubLevelObserver {
                 if (Objects.equals(pending.successLangKey(), "sableprotect.ground.success")) {
                     SableProtectMod.LOGGER.info(
                             "[sable-protect][debug]   matched pending fetch entry; grounding now");
-                    groundSublevel(subLevel.getLevel().getServer().getPlayerList().getPlayer(pending.requester()), pending.displayName(), serverSubLevel, freezeManager, pending.plotChunk(), pending.dimension());
+                    if (groundSublevel(subLevel.getLevel().getServer().getPlayerList().getPlayer(pending.requester()), pending.displayName(), serverSubLevel, freezeManager, pending.plotChunk(), pending.dimension()) == 0) {
+                        subLevel.getLevel().getServer().getLevel(pending.dimension()).setChunkForced(pending.plotChunk().x, pending.plotChunk().z, false);
+                        return;
+                    }
+
                     return;
                 }
                 SableProtectMod.LOGGER.info(

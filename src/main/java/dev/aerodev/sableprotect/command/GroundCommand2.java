@@ -146,7 +146,10 @@ public final class GroundCommand2 {
                 final PhysicsPipeline pipeline = container.physicsSystem().getPipeline();
                 pipeline.resetVelocity(subLevel);
                 SableProtectMod.LOGGER.info("[sable-protect][debug]   Sub-level loaded synchronously; grounding now.");
-                return groundSublevel(player, name, ssl, freezeManager, plotChunk, dimension);
+                if (groundSublevel(player, name, ssl, freezeManager, plotChunk, dimension) == 0) {
+                    level.setChunkForced(plotChunk.x, plotChunk.z, false);
+                    return 0;
+                }
             }
             //Continues if Sub-Level is not in container yet
             SableProtectMod.LOGGER.info("[sable-protect][debug]   Sub-level was not loaded correctly");
@@ -195,6 +198,7 @@ public final class GroundCommand2 {
         ServerPlayer playerAboard = findPlayerAboard(server, subLevel);
         if (playerAboard != null) {
             player.displayClientMessage(Lang.tr("sableprotect.ground.crew_present", playerAboard.getGameProfile().getName()), false);
+            SableProtectMod.LOGGER.info("[sable-protect][debug]   Crew Present");
             return 0;
         }
 
@@ -202,6 +206,7 @@ public final class GroundCommand2 {
 
         final ServerSubLevelContainer container = SubLevelContainer.getContainer(level);
         if (container == null) {
+            SableProtectMod.LOGGER.info("[sable-protect][debug]   Container fetch failed");
             player.displayClientMessage(Lang.tr("sableprotect.fetch.failed"), false);
             return 0;
         }
@@ -214,6 +219,7 @@ public final class GroundCommand2 {
         //Starts the animation, then freezes the sub-level
 
         SubLevelAssemblyHelper.animateTo(subLevel.getUniqueId(),  BlockPos.containing(destination.x, destination.y, destination.z), callback -> {
+            SableProtectMod.LOGGER.info("[sable-protect][debug]   Callback Called");
             final long currentTick = level.getServer().getTickCount();
             Pose3d newpose = subLevel.logicalPose();
 
