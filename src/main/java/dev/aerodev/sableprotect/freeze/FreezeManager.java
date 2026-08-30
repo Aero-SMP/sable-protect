@@ -150,22 +150,6 @@ public final class FreezeManager {
                 notifyExpired(server, state);
                 continue;
             }
-
-            //pinPose(subLevel, state);
-        }
-    }
-
-    private static void pinPose(final ServerSubLevel subLevel, final FreezeState state) {
-        final ServerLevel level = subLevel.getLevel();
-        final ServerSubLevelContainer container = SubLevelContainer.getContainer(level);
-        if (container == null) return;
-        final PhysicsPipeline pipeline = container.physicsSystem().getPipeline();
-        try {
-            pipeline.resetVelocity(subLevel);
-            pipeline.teleport(subLevel, state.anchorPos, state.anchorOrientation);
-        } catch (final Exception e) {
-            SableProtectMod.LOGGER.warn("[sable-protect] Failed to maintain freeze on sub-level {}",
-                    subLevel.getUniqueId(), e);
         }
     }
 
