@@ -4,6 +4,8 @@ import dev.aerodev.sableprotect.SableProtectMod;
 import dev.aerodev.sableprotect.claim.ClaimData;
 import dev.aerodev.sableprotect.util.Lang;
 import dev.ryanhcode.sable.api.physics.PhysicsPipeline;
+import dev.ryanhcode.sable.api.physics.constraint.FixedConstraintConfiguration;
+import dev.ryanhcode.sable.api.physics.constraint.PhysicsConstraintHandle;
 import dev.ryanhcode.sable.api.sublevel.ServerSubLevelContainer;
 import dev.ryanhcode.sable.api.sublevel.SubLevelContainer;
 import dev.ryanhcode.sable.companion.math.Pose3d;
@@ -40,6 +42,7 @@ public final class FreezeManager {
         final WeakReference<ServerSubLevel> subLevelRef;
         final Vector3d anchorPos;
         final Quaterniond anchorOrientation;
+        final PhysicsConstraintHandle constraint;
         final long expiryTick;
         final String displayName;
         final Set<UUID> notifyPlayers;
@@ -47,13 +50,14 @@ public final class FreezeManager {
         final @Nullable ChunkPos heldChunk;
         final @Nullable ResourceKey<Level> heldChunkDimension;
 
-        FreezeState(final ServerSubLevel subLevel, final Vector3dc pos, final Quaterniondc orientation,
+        FreezeState(final ServerSubLevel subLevel, final Vector3dc pos, final Quaterniondc orientation, final PhysicsConstraintHandle constraint,
                     final long expiryTick, final String displayName, final Set<UUID> notifyPlayers,
                     final @Nullable ChunkPos heldChunk,
                     final @Nullable ResourceKey<Level> heldChunkDimension) {
             this.subLevelRef = new WeakReference<>(subLevel);
             this.anchorPos = new Vector3d(pos);
             this.anchorOrientation = new Quaterniond(orientation);
+            this.constraint = constraint;
             this.expiryTick = expiryTick;
             this.displayName = displayName;
             this.notifyPlayers = notifyPlayers;
@@ -100,9 +104,21 @@ public final class FreezeManager {
             notify.addAll(data.getMembers());
         }
 
+        final ServerSubLevelContainer container = SubLevelContainer.getContainer(subLevel.getLevel());
+
+        if (container == null) {
+            return false;
+        }
+
+        final PhysicsPipeline pipeline = container.physicsSystem().getPipeline();
+
+        pipeline.resetVelocity(subLevel);
+
+        final PhysicsConstraintHandle constraint = pipeline.addConstraint(null, subLevel, new FixedConstraintConfiguration(subLevel.logicalPose().position(), subLevel.logicalPose().rotationPoint(), subLevel.logicalPose().orientation()));
+
         active.put(subLevel.getUniqueId(),
                 new FreezeState(subLevel, anchorPos, anchorOrientation,
-                        currentTick + durationTicks, displayName, notify,
+                        constraint, currentTick + durationTicks, displayName, notify,
                         heldChunk, heldChunkDimension));
         return true;
     }
@@ -121,19 +137,21 @@ public final class FreezeManager {
 
             // Sub-level was garbage collected or unloaded — drop the freeze silently.
             if (subLevel == null || subLevel.isRemoved()) {
+                removeConstraint(state);
                 releaseHeldChunk(server, state);
                 it.remove();
                 continue;
             }
 
             if (currentTick >= state.expiryTick) {
+                removeConstraint(state);
                 releaseHeldChunk(server, state);
                 it.remove();
                 notifyExpired(server, state);
                 continue;
             }
 
-            pinPose(subLevel, state);
+            //pinPose(subLevel, state);
         }
     }
 
@@ -151,16 +169,28 @@ public final class FreezeManager {
         }
     }
 
+    private static void removeConstraint(final FreezeState state) {
+        if (state.constraint != null && state.constraint.isValid()) {
+            state.constraint.remove();
+        }
+    }
+
     /** Drop a freeze without notification, e.g. when the sub-level is being removed. */
     public void cancel(final UUID subLevelUuid) {
         // Note: caller doesn't have a server handle here, so we can't release a held chunk
         // synchronously. The chunk-force will be cleaned up on server stop via cancelAll.
-        active.remove(subLevelUuid);
+        final FreezeState state = active.remove(subLevelUuid);
+        if (state != null) {
+            removeConstraint(state);
+        }
     }
 
     /** Drop all active freezes silently, e.g. on server shutdown. */
     public void cancelAll(final MinecraftServer server) {
-        for (final FreezeState state : active.values()) releaseHeldChunk(server, state);
+        for (final FreezeState state : active.values()) {
+            removeConstraint(state);
+            releaseHeldChunk(server, state);
+        }
         active.clear();
     }
 
