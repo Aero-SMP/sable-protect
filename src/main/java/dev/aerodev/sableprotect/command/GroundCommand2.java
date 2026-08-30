@@ -70,6 +70,8 @@ public final class GroundCommand2 {
                         }));
     }
 
+    public static int groundTrys = 20;
+
     private static int execute(final ServerPlayer player, final String name,
                                final ClaimRegistry registry, final FreezeManager freezeManager,
                                final PendingFetchManager pendingFetchManager) {
@@ -193,6 +195,16 @@ public final class GroundCommand2 {
         final Pose3d pose = subLevel.logicalPose();
         final Vector3dc currentPos = pose.position();
         final MinecraftServer server = level.getServer();
+
+        if (subLevel.getPlot().getLoadedChunks().isEmpty()) {
+            if (groundTrys <= 0 && heldChunk != null) {
+                level.setChunkForced(heldChunk.x, heldChunk.z, false);
+                player.displayClientMessage(Lang.tr("sableprotect.fetch.failed", name), false);
+                return 0;
+            }
+            groundTrys -= 1;
+            return groundSublevel(player, name, subLevel, freezeManager, heldChunk, heldChunkDimension);
+        }
 
         //Checks if a player is aboard the sub-level before grounding
         ServerPlayer playerAboard = findPlayerAboard(server, subLevel);
