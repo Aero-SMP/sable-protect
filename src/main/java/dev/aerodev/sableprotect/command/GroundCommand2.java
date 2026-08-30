@@ -2,6 +2,7 @@ package dev.aerodev.sableprotect.command;
 
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import dev.aerodev.sableprotect.SableProtectMod;
 import dev.aerodev.sableprotect.claim.ClaimData;
 import dev.aerodev.sableprotect.claim.ClaimRegistry;
 import dev.aerodev.sableprotect.claim.ClaimRole;
@@ -23,16 +24,22 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.core.jmx.Server;
 import org.joml.Quaterniond;
 import org.joml.Vector3d;
 import org.joml.Vector3dc;
 
+import javax.annotation.Nullable;
 import java.util.UUID;
 
 public final class GroundCommand2 {
@@ -90,15 +97,67 @@ public final class GroundCommand2 {
 
         final ServerSubLevel subLevel = UnclaimCommand.findSubLevel(player, subLevelId);
         if (subLevel != null) {
-            return groundSublevel(player, name, subLevel, freezeManager);
+            return groundSublevel(player, name, subLevel, freezeManager, null, null);
         }
+        //Continues if sub-level is unloaded
         //Loads Chunk that sub-level is in, then continues as normal, will continue working soon
+        final Vec3 lastPos = data.getLastKnownPosition();
+        final ResourceKey<Level> dimension = data.getLastKnownDimension();
+        if (lastPos == null || dimension == null) {
+            player.displayClientMessage(Lang.tr("sableprotect.fetch.unloaded_unavailable", name), false);
+            return 0;
+        }
+        final ChunkPos plotChunk = new ChunkPos(
+                ((int) Math.floor(lastPos.x)) >> 4,
+                ((int) Math.floor(lastPos.z)) >> 4);
+
+        final MinecraftServer server = player.getServer();
+        final ServerLevel level = server.getLevel(dimension);
+        if (level == null) {
+            player.displayClientMessage(Lang.tr("sableprotect.fetch.failed"), false);
+            return 0;
+        }
+
+        try {
+            //Force Loads where the sub-level was last recorded
+            final boolean wasNotForced = level.setChunkForced(plotChunk.x, plotChunk.z, true);
+            SableProtectMod.LOGGER.info(
+                    "[sable-protect][debug]   setChunkForced(+true) returned {} (true = newly forced, false = already forced or refused)",
+                    wasNotForced);
+            //Then, attempts synchronous chunk load to stop the code until chunk is at FULL
+            final ChunkAccess chunk = level.getChunkSource().getChunk(plotChunk.x, plotChunk.z, ChunkStatus.FULL, true);
+            SableProtectMod.LOGGER.info(
+                    "[sable-protect][debug]   sync chunk load returned: {}",
+                    chunk == null ? "null" : chunk.getClass().getSimpleName() + " @ " + chunk.getPos());
+            //Checks if the sub-level is now in the container.
+            final ServerSubLevelContainer container = SubLevelContainer.getContainer(level);
+            if (container == null) {
+                SableProtectMod.LOGGER.warn("[sable-protect][debug]   no SubLevelContainer for {}", level.dimension().location());
+                level.setChunkForced(plotChunk.x, plotChunk.z, false);
+                player.displayClientMessage(Lang.tr("sableprotect.fetch.failed"), false);
+                return 0;
+            }
+            //If it is found in the container, continues as normal, except with the new arguements of plotChunk and dimension, so FreezeManager can unload the chunk after freezing
+            final SubLevel found = container.getSubLevel(subLevelId);
+            if (found instanceof ServerSubLevel ssl && !ssl.isRemoved()) {
+                SableProtectMod.LOGGER.info("[sable-protect][debug]   Sub-level loaded synchronously; grounding now.");
+                return groundSublevel(player, name, ssl, freezeManager, plotChunk, dimension);
+            }
+        } catch (final Throwable t) {
+            SableProtectMod.LOGGER.warn(
+                    "[sable-protect][debug]   chunk load threw {}: {}",
+                    t.getClass().getSimpleName(), t.getMessage());
+            level.setChunkForced(plotChunk.x, plotChunk.z, false);
+        }
+
         return 0;
     }
 
     private static int groundSublevel(final ServerPlayer player, final String name,
-                                     final ServerSubLevel subLevel,
-                                     final FreezeManager freezeManager) {
+                                      final ServerSubLevel subLevel,
+                                      final FreezeManager freezeManager,
+                                      final @Nullable ChunkPos heldChunk,
+                                      final @Nullable ResourceKey<Level> heldChunkDimension) {
         final ServerLevel level = subLevel.getLevel();
         final Pose3d pose = subLevel.logicalPose();
         final Vector3dc currentPos = pose.position();
@@ -130,7 +189,15 @@ public final class GroundCommand2 {
             final long currentTick = level.getServer().getTickCount();
             Pose3d newpose = subLevel.logicalPose();
 
-            if (!freezeManager.freeze(subLevel, new Vector3d(newpose.position().x, newpose.position().y, newpose.position().z), new Quaterniond(newpose.orientation()), durationTicks, currentTick)) {
+            //Needed so if the chunk is force loaded, it can be unloaded after freeze is done
+            boolean freeze;
+            if (heldChunk != null) {
+                freeze = freezeManager.freeze(subLevel, new Vector3d(newpose.position().x, newpose.position().y, newpose.position().z), new Quaterniond(newpose.orientation()), durationTicks, currentTick, heldChunk, heldChunkDimension);
+            } else {
+                freeze = freezeManager.freeze(subLevel, new Vector3d(newpose.position().x, newpose.position().y, newpose.position().z), new Quaterniond(newpose.orientation()), durationTicks, currentTick);
+            }
+
+            if (!freeze) {
                 player.displayClientMessage(Lang.tr("sableprotect.fetch.freeze_unavailable"), false);
                 return;
             }
