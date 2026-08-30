@@ -101,6 +101,7 @@ public final class GroundCommand2 {
         }
         //Continues if sub-level is unloaded
         //Loads Chunk that sub-level is in, then continues as normal, will continue working soon
+        SableProtectMod.LOGGER.info("[sable-protect][debug]   Chunk is unloaded, taking unloaded path");
         final Vec3 lastPos = data.getLastKnownPosition();
         final ResourceKey<Level> dimension = data.getLastKnownDimension();
         if (lastPos == null || dimension == null) {
@@ -137,11 +138,14 @@ public final class GroundCommand2 {
                 player.displayClientMessage(Lang.tr("sableprotect.fetch.failed"), false);
                 return 0;
             }
+            SableProtectMod.LOGGER.info("[sable-protect][debug]   Found SubLevelContainer");
             //If it is found in the container, continues as normal, except with the new arguements of plotChunk and dimension, so FreezeManager can unload the chunk after freezing
             final SubLevel found = container.getSubLevel(subLevelId);
             if (found instanceof ServerSubLevel ssl && !ssl.isRemoved()) {
                 SableProtectMod.LOGGER.info("[sable-protect][debug]   Sub-level loaded synchronously; grounding now.");
                 return groundSublevel(player, name, ssl, freezeManager, plotChunk, dimension);
+            } else {
+                SableProtectMod.LOGGER.info("[sable-protect][debug]   Sub-level was not loaded correctly");
             }
         } catch (final Throwable t) {
             SableProtectMod.LOGGER.warn(
