@@ -125,6 +125,7 @@ public final class GroundCommand2 {
             SableProtectMod.LOGGER.info(
                     "[sable-protect][debug]   setChunkForced(+true) returned {} (true = newly forced, false = already forced or refused)",
                     wasNotForced);
+
             //Then, attempts synchronous chunk load to stop the code until chunk is at FULL
             final ChunkAccess chunk = level.getChunkSource().getChunk(plotChunk.x, plotChunk.z, ChunkStatus.FULL, true);
             SableProtectMod.LOGGER.info(
@@ -138,6 +139,8 @@ public final class GroundCommand2 {
                 player.displayClientMessage(Lang.tr("sableprotect.fetch.failed"), false);
                 return 0;
             }
+            final PhysicsPipeline pipeline = container.physicsSystem().getPipeline();
+            pipeline.resetVelocity(subLevel);
             SableProtectMod.LOGGER.info("[sable-protect][debug]   Found SubLevelContainer");
             //If it is found in the container, continues as normal, except with the new arguements of plotChunk and dimension, so FreezeManager can unload the chunk after freezing
             final SubLevel found = container.getSubLevel(subLevelId);
