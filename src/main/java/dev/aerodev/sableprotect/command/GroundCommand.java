@@ -218,7 +218,7 @@ public final class GroundCommand {
 
         //Starts the animation, then freezes the sub-level
 
-        SubLevelAssemblyHelper.animateTo(subLevel.getUniqueId(), BlockPos.containing(destination.x, destination.y, destination.z), callback -> {
+        SubLevelAssemblyHelper.animateTo(subLevel, BlockPos.containing(destination.x, destination.y, destination.z), callback -> {
             SableProtectMod.LOGGER.info("[sable-protect][debug]   Callback Called");
             final long currentTick = level.getServer().getTickCount();
             Pose3d newpose = subLevel.logicalPose();
