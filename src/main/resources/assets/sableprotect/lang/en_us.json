@@ -33,6 +33,7 @@
   "sableprotect.fetch.not_authorized": "Only the owner or a member can fetch this sub-level.",
   "sableprotect.fetch.inside_border": "That sub-level is already inside the world border.",
   "sableprotect.fetch.already_frozen": "'%s' is already frozen.",
+  "sableprotect.ground.failed": "Could not ground the sub-level: movement failed or was cancelled.",
   "sableprotect.fetch.failed": "Could not fetch the sub-level (no physics handle).",
   "sableprotect.fetch.freeze_unavailable": "Physics freeze is not available in this dimension.",
   "sableprotect.fetch.freeze_expired": "Physics freeze on '%s' has expired.",

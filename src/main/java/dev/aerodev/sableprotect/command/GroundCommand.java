@@ -220,6 +220,11 @@ public final class GroundCommand {
 
         SubLevelAssemblyHelper.animateTo(subLevel, BlockPos.containing(destination.x, destination.y, destination.z), callback -> {
             SableProtectMod.LOGGER.info("[sable-protect][debug]   Callback Called");
+            if (callback.isEmpty()) {
+                releaseGroundChunk(server, heldChunk, heldChunkDimension);
+                player.displayClientMessage(Lang.tr("sableprotect.ground.failed"), false);
+                return;
+            }
             final long currentTick = level.getServer().getTickCount();
             Pose3d newpose = subLevel.logicalPose();
 
@@ -232,6 +237,7 @@ public final class GroundCommand {
             }
 
             if (!freeze) {
+                releaseGroundChunk(server, heldChunk, heldChunkDimension);
                 player.displayClientMessage(Lang.tr("sableprotect.fetch.freeze_unavailable"), false);
                 return;
             }
@@ -245,6 +251,13 @@ public final class GroundCommand {
 
         return 1;
 
+    }
+
+    private static void releaseGroundChunk(final MinecraftServer server, final ChunkPos heldChunk,
+                                           final ResourceKey<Level> heldChunkDimension) {
+        if (heldChunk == null || heldChunkDimension == null) return;
+        final ServerLevel heldLevel = server.getLevel(heldChunkDimension);
+        if (heldLevel != null) heldLevel.setChunkForced(heldChunk.x, heldChunk.z, false);
     }
 
     private static ServerPlayer findPlayerAboard(MinecraftServer server, ServerSubLevel target) {
